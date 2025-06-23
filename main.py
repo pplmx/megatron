@@ -2,18 +2,12 @@ import io
 import logging
 import os
 
+from playwright.sync_api import Browser, sync_playwright
+from pypdf import PdfWriter
+
 # 配置日志
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-# 尝试导入必要的库
-try:
-    from playwright.sync_api import Browser, sync_playwright
-    from pypdf import PdfWriter
-except ImportError:
-    logger.error("必需的库未安装。请运行: pip install playwright pypdf")
-    logger.error("并且不要忘记初始化Playwright: playwright install")
-    exit(1)
 
 # --- 配置区 ---
 # 现在可以指定一个目录，或者一个手动排序的文件列表

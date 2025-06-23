@@ -1,23 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-HTML页面转PDF合并工具 (纯Playwright版 - 动态页面尺寸 - 内存优化 - 目录支持)
-- 自动检测HTML内容尺寸，避免裁剪
-- 全程在内存中操作PDF，性能更佳
-- 支持直接传入目录，自动按文件名排序处理
-"""
-import os
 import io
-from typing import List, Dict, Union
 import logging
+import os
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # 尝试导入必要的库
 try:
-    from playwright.sync_api import sync_playwright, Browser
+    from playwright.sync_api import Browser, sync_playwright
     from pypdf import PdfWriter
 except ImportError:
     logger.error("必需的库未安装。请运行: pip install playwright pypdf")
@@ -38,13 +29,14 @@ HTML_SOURCE = "docs/pdf_html"
 
 OUTPUT_PDF_FILE = "final_document_from_directory.pdf"
 
+
 class HTMLToPDFConverter:
     """使用Playwright将多个HTML文件合并为一个PDF，自动适应内容尺寸，并在内存中处理。"""
 
     def __init__(self):
         logger.info("Playwright PDF转换器已初始化 (内存优化/目录支持模式)。")
 
-    def merge_html_to_pdf(self, html_source: Union[str, List[str]], output_pdf: str):
+    def merge_html_to_pdf(self, html_source: str | list[str], output_pdf: str):
         """
         将多个HTML文件按顺序转换并合并为一个PDF。
 
@@ -57,10 +49,7 @@ class HTMLToPDFConverter:
             logger.info(f"检测到输入为目录: '{html_source}'. 正在扫描HTML文件...")
             try:
                 # 筛选出html文件并按文件名排序
-                filenames = sorted([
-                    f for f in os.listdir(html_source)
-                    if f.lower().endswith(('.html', '.htm'))
-                ])
+                filenames = sorted([f for f in os.listdir(html_source) if f.lower().endswith((".html", ".htm"))])
                 if not filenames:
                     raise FileNotFoundError(f"在目录 '{html_source}' 中没有找到任何HTML文件。")
                 # 构建完整路径列表
@@ -111,39 +100,36 @@ class HTMLToPDFConverter:
         page = browser.new_page()
         absolute_path = os.path.abspath(html_path)
         page.goto(f"file:///{absolute_path}")
-        page.wait_for_load_state('networkidle')
+        page.wait_for_load_state("networkidle")
 
         # 在测量尺寸之前，强制移除 html 和 body 的内外边距
-        page.add_style_tag(content="""
+        page.add_style_tag(
+            content="""
                 html, body {
                     margin: 0 !important;
                     padding: 0 !important;
                 }
-            """)
+            """
+        )
 
         # 现在进行测量，此时的尺寸将是不含任何外边距的纯内容尺寸
-        dimensions: Dict[str, float] = page.evaluate('''() => {
+        dimensions: dict[str, float] = page.evaluate("""() => {
             return {
                 width: Math.ceil(document.documentElement.scrollWidth),
                 height: Math.ceil(document.documentElement.scrollHeight)
             }
-        }''')
+        }""")
 
         page_width = f"{dimensions['width']}px"
         page_height = f"{dimensions['height']}px"
 
         logger.info(f"  -> 正在渲染 {os.path.basename(html_path)} | 检测到尺寸: {page_width} x {page_height}")
 
-        pdf_content = page.pdf(
-            width=page_width,
-            height=page_height,
-            print_background=True,
-            page_ranges="1"
-        )
+        pdf_content = page.pdf(width=page_width, height=page_height, print_background=True, page_ranges="1")
         page.close()
         return pdf_content
 
-    def _merge_pdfs_from_bytes(self, pdf_bytes_list: List[bytes], output_path: str):
+    def _merge_pdfs_from_bytes(self, pdf_bytes_list: list[bytes], output_path: str):
         """从字节流列表合并PDF。"""
         merger = PdfWriter()
         logger.info("开始从内存中合并所有PDF页面...")
@@ -152,10 +138,11 @@ class HTMLToPDFConverter:
             pdf_stream = io.BytesIO(pdf_bytes)
             merger.append(pdf_stream)
 
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             merger.write(f)
         merger.close()
         logger.info(f"成功合并 {len(pdf_bytes_list)} 个页面到: {output_path}")
+
 
 def main():
     """主执行函数"""
@@ -167,6 +154,7 @@ def main():
         logger.error(f"执行失败: {e}")
     except Exception:
         logger.error("发生了未知错误，请检查上面的日志获取详细信息。")
+
 
 if __name__ == "__main__":
     main()

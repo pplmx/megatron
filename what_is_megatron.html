@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #8e44ad 0%, #3498db 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        height: 100%;
+      }
+      .definition-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        border: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .card-icon {
+        font-size: 2.5rem;
+        color: #f39c12;
+        margin-right: 15px;
+      }
+      .card-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+      }
+      .card-content {
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.9);
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .highlight-box {
+        background: rgba(243, 156, 18, 0.2);
+        border-left: 4px solid #f39c12;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .key-features {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .feature-icon {
+        font-size: 1.5rem;
+        color: #3498db;
+        margin-right: 15px;
+        width: 30px;
+        text-align: center;
+      }
+      .feature-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">什么是 Megatron-LM</h1>
+      
+      <div class="content-grid">
+        <div class="definition-card">
+          <div class="card-header">
+            <i class="fas fa-brain card-icon"></i>
+            <h2 class="card-title">定义与背景</h2>
+          </div>
+          <div class="card-content">
+            Megatron-LM 是由 NVIDIA 开发的大规模语言模型训练框架，专门用于训练数十亿甚至万亿参数的 Transformer 模型。
+          </div>
+          <div class="highlight-box">
+            <strong>核心目标：</strong>突破单GPU内存限制，实现超大规模语言模型的高效分布式训练
+          </div>
+          <div class="card-content">
+            该框架基于 PyTorch 构建，提供了完整的模型并行、数据并行和流水线并行解决方案，是目前业界最先进的大模型训练框架之一。
+          </div>
+        </div>
+        
+        <div class="definition-card">
+          <div class="card-header">
+            <i class="fas fa-star card-icon"></i>
+            <h2 class="card-title">核心特点</h2>
+          </div>
+          <div class="key-features">
+            <div class="feature-item">
+              <i class="fas fa-layer-group feature-icon"></i>
+              <div class="feature-text">
+                <strong>多维并行：</strong>支持张量、流水线、数据并行的组合使用
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-tachometer-alt feature-icon"></i>
+              <div class="feature-text">
+                <strong>高性能优化：</strong>针对 NVIDIA GPU 架构深度优化
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-memory feature-icon"></i>
+              <div class="feature-text">
+                <strong>内存高效：</strong>通过激活重计算和梯度检查点节省内存
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-code feature-icon"></i>
+              <div class="feature-text">
+                <strong>易于使用：</strong>提供完整的训练脚本和配置模板
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-chart-line feature-icon"></i>
+              <div class="feature-text">
+                <strong>可扩展性：</strong>支持从几个GPU到数千个GPU的扩展
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

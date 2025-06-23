@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 50px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 50px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .agenda-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        height: 100%;
+      }
+      .section-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        flex-direction: column;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .section-icon {
+        font-size: 2.5rem;
+        color: #3498db;
+        margin-right: 15px;
+      }
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+      }
+      .section-items {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .section-item {
+        padding: 8px 0;
+        color: rgba(255,255,255,0.9);
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+      }
+      .item-bullet {
+        width: 8px;
+        height: 8px;
+        background: #3498db;
+        border-radius: 50%;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">议程</h1>
+      
+      <div class="agenda-grid">
+        <div class="section-card">
+          <div class="section-header">
+            <i class="fas fa-info-circle section-icon"></i>
+            <h2 class="section-title">第一部分：介绍</h2>
+          </div>
+          <ul class="section-items">
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              什么是 Megatron-LM
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              为什么需要 Megatron-LM
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              核心特性和优势
+            </li>
+          </ul>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <i class="fas fa-sitemap section-icon"></i>
+            <h2 class="section-title">第二部分：并行技术</h2>
+          </div>
+          <ul class="section-items">
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              并行技术概览
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              数据并行 & 流水线并行
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              张量并行 & 序列并行
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              PTD-P 组合策略
+            </li>
+          </ul>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <i class="fas fa-cogs section-icon"></i>
+            <h2 class="section-title">第三部分：TP实现</h2>
+          </div>
+          <ul class="section-items">
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              张量并行深入解析
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              ColumnParallelLinear 实现
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              RowParallelLinear 实现
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              通信模式分析
+            </li>
+          </ul>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <i class="fas fa-puzzle-piece section-icon"></i>
+            <h2 class="section-title">第四部分：模块实现</h2>
+          </div>
+          <ul class="section-items">
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              Self-Attention 模块
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              MLP 模块实现
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              MoE 模块实现
+            </li>
+            <li class="section-item">
+              <div class="item-bullet"></div>
+              性能优化 & 最佳实践
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

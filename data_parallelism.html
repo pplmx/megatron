@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        height: 100%;
+      }
+      .content-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .card-icon {
+        font-size: 2.5rem;
+        color: #f39c12;
+        margin-right: 15px;
+      }
+      .card-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+      }
+      .workflow-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .step-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #f39c12;
+      }
+      .step-number {
+        width: 30px;
+        height: 30px;
+        background: #f39c12;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .step-content {
+        color: rgba(255,255,255,0.9);
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+      .optimization-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .optimization-item {
+        background: rgba(231, 76, 60, 0.2);
+        border-left: 4px solid #e74c3c;
+        padding: 12px;
+        border-radius: 8px;
+      }
+      .opt-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 5px;
+        font-size: 1rem;
+      }
+      .opt-desc {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      .code-block {
+        background: rgba(0,0,0,0.3);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        color: #00ff88;
+        border-left: 4px solid #00ff88;
+        overflow-x: auto;
+      }
+      .highlight-box {
+        background: rgba(243, 156, 18, 0.2);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        border-left: 4px solid #f39c12;
+      }
+      .highlight-text {
+        color: white;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .highlight-desc {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">数据并行 (Data Parallelism)</h1>
+      
+      <div class="main-content">
+        <div class="content-card">
+          <div class="card-header">
+            <i class="fas fa-cogs card-icon"></i>
+            <h2 class="card-title">工作流程</h2>
+          </div>
+          
+          <div class="workflow-steps">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <strong>数据分割：</strong>将训练批次分割到多个GPU，每个GPU处理不同的数据子集
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <strong>前向传播：</strong>每个GPU独立执行前向传播，计算各自的损失值
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <strong>反向传播：</strong>计算梯度，每个GPU得到针对其数据子集的梯度
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <strong>梯度聚合：</strong>通过All-Reduce操作聚合所有GPU的梯度
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <strong>参数更新：</strong>使用聚合后的梯度更新模型参数，保持同步
+              </div>
+            </div>
+          </div>
+          
+          <div class="code-block">
+# 数据并行伪代码<br/>
+for batch in dataloader:<br/>
+&nbsp;&nbsp;# 分割数据到各GPU<br/>
+&nbsp;&nbsp;local_batch = batch.to(device)<br/>
+&nbsp;&nbsp;# 前向传播<br/>
+&nbsp;&nbsp;output = model(local_batch)<br/>
+&nbsp;&nbsp;loss = criterion(output, target)<br/>
+&nbsp;&nbsp;# 反向传播<br/>
+&nbsp;&nbsp;loss.backward()<br/>
+&nbsp;&nbsp;# 梯度聚合<br/>
+&nbsp;&nbsp;all_reduce(model.parameters())<br/>
+&nbsp;&nbsp;# 参数更新<br/>
+&nbsp;&nbsp;optimizer.step()
+          </div>
+        </div>
+        
+        <div class="content-card">
+          <div class="card-header">
+            <i class="fas fa-rocket card-icon"></i>
+            <h2 class="card-title">Megatron-LM 优化</h2>
+          </div>
+          
+          <div class="optimization-list">
+            <div class="optimization-item">
+              <div class="opt-title">分布式优化器</div>
+              <div class="opt-desc">
+                将优化器状态分片到不同GPU，每个GPU只维护部分参数的优化器状态，大幅减少内存占用
+              </div>
+            </div>
+            
+            <div class="optimization-item">
+              <div class="opt-title">梯度分片</div>
+              <div class="opt-desc">
+                梯度计算完成后立即分片，避免在单个GPU上存储完整梯度，降低峰值内存需求
+              </div>
+            </div>
+            
+            <div class="optimization-item">
+              <div class="opt-title">重叠通信计算</div>
+              <div class="opt-desc">
+                在反向传播过程中，边计算梯度边进行All-Reduce通信，隐藏通信延迟
+              </div>
+            </div>
+            
+            <div class="optimization-item">
+              <div class="opt-title">ZeRO 集成</div>
+              <div class="opt-desc">
+                支持ZeRO-1/2/3优化策略，进一步减少内存占用，支持更大规模的模型训练
+              </div>
+            </div>
+          </div>
+          
+          <div class="highlight-box">
+            <div class="highlight-text">内存节省效果</div>
+            <div class="highlight-desc">
+              通过分布式优化器，Adam优化器的内存占用从每参数12字节降低到3字节（4GPU情况下），节省75%的优化器内存
+            </div>
+          </div>
+          
+          <div class="highlight-box">
+            <div class="highlight-text">扩展性分析</div>
+            <div class="highlight-desc">
+              数据并行的通信复杂度为O(P)，其中P为参数数量。在大模型场景下，通信成为主要瓶颈，需要与其他并行策略结合使用
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

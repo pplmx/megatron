@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 25px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 2.3rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 18px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        height: 100%;
+      }
+      .content-panel {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .panel-icon {
+        font-size: 1.6rem;
+        color: #e74c3c;
+        margin-right: 8px;
+      }
+      .panel-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+      }
+      .attention-architecture {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .arch-component {
+        background: rgba(155, 89, 182, 0.2);
+        border-left: 4px solid #9b59b6;
+        padding: 10px;
+        border-radius: 6px;
+      }
+      .component-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .component-icon {
+        font-size: 1rem;
+        color: #f39c12;
+        margin-right: 6px;
+      }
+      .component-name {
+        font-weight: bold;
+        color: white;
+        font-size: 0.85rem;
+      }
+      .component-desc {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.75rem;
+        line-height: 1.3;
+      }
+      .code-block {
+        background: rgba(0,0,0,0.4);
+        border-radius: 6px;
+        padding: 10px;
+        margin: 8px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.65rem;
+        color: #00ff88;
+        border-left: 3px solid #00ff88;
+        overflow-x: auto;
+        line-height: 1.2;
+      }
+      .parallel-strategy {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+      }
+      .strategy-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 6px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .strategy-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .strategy-step {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 6px;
+        border-radius: 4px;
+      }
+      .step-number {
+        width: 16px;
+        height: 16px;
+        background: #e74c3c;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 6px;
+        font-size: 0.6rem;
+      }
+      .step-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+      .attention-formula {
+        background: rgba(231, 76, 60, 0.2);
+        border-radius: 6px;
+        padding: 8px;
+        margin: 6px 0;
+        text-align: center;
+      }
+      .formula-text {
+        font-family: 'Courier New', monospace;
+        color: #e74c3c;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+      .optimization-points {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .opt-point {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 6px;
+        border-radius: 4px;
+      }
+      .opt-icon {
+        color: #27ae60;
+        margin-right: 6px;
+        font-size: 0.8rem;
+      }
+      .opt-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+      .memory-analysis {
+        background: rgba(142, 68, 173, 0.2);
+        border-radius: 6px;
+        padding: 8px;
+        margin: 6px 0;
+      }
+      .memory-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
+      }
+      .memory-content {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">Self-Attention 模块实现</h1>
+      
+      <div class="content-layout">
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-brain panel-icon"></i>
+            <h2 class="panel-title">并行化架构</h2>
+          </div>
+          
+          <div class="attention-architecture">
+            <div class="arch-component">
+              <div class="component-header">
+                <i class="fas fa-layer-group component-icon"></i>
+                <div class="component-name">Query/Key/Value 投影</div>
+              </div>
+              <div class="component-desc">
+                使用ColumnParallelLinear将输入投影到Q、K、V空间，按注意力头分割
+              </div>
+            </div>
+            
+            <div class="arch-component">
+              <div class="component-header">
+                <i class="fas fa-calculator component-icon"></i>
+                <div class="component-name">注意力计算</div>
+              </div>
+              <div class="component-desc">
+                每个GPU独立计算分配给它的注意力头，包括缩放点积注意力
+              </div>
+            </div>
+            
+            <div class="arch-component">
+              <div class="component-header">
+                <i class="fas fa-compress component-icon"></i>
+                <div class="component-name">输出投影</div>
+              </div>
+              <div class="component-desc">
+                使用RowParallelLinear聚合所有头的输出，恢复完整的隐藏状态
+              </div>
+            </div>
+          </div>
+          
+          <div class="attention-formula">
+            <div class="formula-text">
+              Attention(Q,K,V) = Softmax(QK^T/√d_k)V<br/>
+              MultiHead = Concat(head₁, ..., headₕ)W^O
+            </div>
+          </div>
+          
+          <div class="code-block">
+class ParallelSelfAttention(nn.Module):<br/>
+&nbsp;&nbsp;def __init__(self, hidden_size, num_heads):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.hidden_size = hidden_size<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.num_heads = num_heads<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.head_dim = hidden_size // num_heads<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# Q, K, V 投影 (Column Parallel)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.query_key_value = ColumnParallelLinear(<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, 3 * hidden_size)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 输出投影 (Row Parallel)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.dense = RowParallelLinear(<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, hidden_size)
+          </div>
+          
+          <div class="memory-analysis">
+            <div class="memory-title">内存优化效果</div>
+            <div class="memory-content">
+              • QKV权重: 3×H²/N → 节省67%内存<br/>
+              • 注意力矩阵: S²×H/N → 节省(N-1)/N内存<br/>
+              • 输出权重: H²/N → 节省67%内存
+            </div>
+          </div>
+        </div>
+        
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-cogs panel-icon"></i>
+            <h2 class="panel-title">实现细节</h2>
+          </div>
+          
+          <div class="parallel-strategy">
+            <div class="strategy-title">并行执行流程</div>
+            <div class="strategy-steps">
+              <div class="strategy-step">
+                <div class="step-number">1</div>
+                <div class="step-text">输入通过All-Gather复制到所有GPU</div>
+              </div>
+              <div class="strategy-step">
+                <div class="step-number">2</div>
+                <div class="step-text">每个GPU计算分配的注意力头的QKV</div>
+              </div>
+              <div class="strategy-step">
+                <div class="step-number">3</div>
+                <div class="step-text">并行计算注意力权重和输出</div>
+              </div>
+              <div class="strategy-step">
+                <div class="step-number">4</div>
+                <div class="step-text">通过All-Reduce聚合最终输出</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="code-block">
+def forward(self, hidden_states):<br/>
+&nbsp;&nbsp;# QKV投影 (Column Parallel)<br/>
+&nbsp;&nbsp;qkv = self.query_key_value(hidden_states)<br/>
+&nbsp;&nbsp;q, k, v = qkv.chunk(3, dim=-1)<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;# 重塑为多头格式<br/>
+&nbsp;&nbsp;q = q.view(batch, seq_len, local_heads, head_dim)<br/>
+&nbsp;&nbsp;k = k.view(batch, seq_len, local_heads, head_dim)<br/>
+&nbsp;&nbsp;v = v.view(batch, seq_len, local_heads, head_dim)<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;# 计算注意力<br/>
+&nbsp;&nbsp;attention_scores = torch.matmul(q, k.transpose(-1, -2))<br/>
+&nbsp;&nbsp;attention_scores = attention_scores / math.sqrt(head_dim)<br/>
+&nbsp;&nbsp;attention_probs = F.softmax(attention_scores, dim=-1)<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;# 应用注意力权重<br/>
+&nbsp;&nbsp;context = torch.matmul(attention_probs, v)<br/>
+&nbsp;&nbsp;context = context.view(batch, seq_len, local_hidden)<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;# 输出投影 (Row Parallel)<br/>
+&nbsp;&nbsp;output = self.dense(context)<br/>
+&nbsp;&nbsp;return output
+          </div>
+          
+          <div class="optimization-points">
+            <div class="opt-point">
+              <i class="fas fa-flash opt-icon"></i>
+              <div class="opt-text">
+                <strong>Flash Attention:</strong> 内存高效的注意力计算
+              </div>
+            </div>
+            <div class="opt-point">
+              <i class="fas fa-compress opt-icon"></i>
+              <div class="opt-text">
+                <strong>序列并行:</strong> 进一步分割序列维度节省内存
+              </div>
+            </div>
+            <div class="opt-point">
+              <i class="fas fa-sync opt-icon"></i>
+              <div class="opt-text">
+                <strong>融合操作:</strong> 合并QKV投影减少通信次数
+              </div>
+            </div>
+            <div class="opt-point">
+              <i class="fas fa-memory opt-icon"></i>
+              <div class="opt-text">
+                <strong>梯度检查点:</strong> 重计算注意力权重节省内存
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

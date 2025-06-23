@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 25px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 2.3rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 18px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        height: 100%;
+      }
+      .content-panel {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .panel-icon {
+        font-size: 1.6rem;
+        color: #f39c12;
+        margin-right: 8px;
+      }
+      .panel-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+      }
+      .optimization-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .category-item {
+        background: rgba(192, 57, 43, 0.2);
+        border-left: 4px solid #c0392b;
+        padding: 10px;
+        border-radius: 6px;
+      }
+      .category-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .category-icon {
+        font-size: 1rem;
+        color: #3498db;
+        margin-right: 6px;
+      }
+      .category-name {
+        font-weight: bold;
+        color: white;
+        font-size: 0.9rem;
+      }
+      .category-techniques {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .technique-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 4px 6px;
+        border-radius: 4px;
+      }
+      .technique-bullet {
+        width: 4px;
+        height: 4px;
+        background: #f39c12;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      .technique-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.75rem;
+        line-height: 1.2;
+      }
+      .performance-metrics {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+      }
+      .metrics-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 6px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .metric-box {
+        background: rgba(255,255,255,0.05);
+        padding: 6px;
+        border-radius: 4px;
+        text-align: center;
+      }
+      .metric-value {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #e74c3c;
+      }
+      .metric-label {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.7);
+      }
+      .best-practices {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .practice-item {
+        background: rgba(231, 76, 60, 0.2);
+        border-left: 4px solid #e74c3c;
+        padding: 8px;
+        border-radius: 6px;
+      }
+      .practice-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      .practice-icon {
+        font-size: 0.9rem;
+        color: #27ae60;
+        margin-right: 6px;
+      }
+      .practice-title {
+        font-weight: bold;
+        color: white;
+        font-size: 0.8rem;
+      }
+      .practice-desc {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+      .configuration-tips {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .tip-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 6px;
+        border-radius: 4px;
+      }
+      .tip-icon {
+        color: #f39c12;
+        margin-right: 6px;
+        font-size: 0.8rem;
+      }
+      .tip-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+      .code-snippet {
+        background: rgba(0,0,0,0.3);
+        border-radius: 6px;
+        padding: 8px;
+        margin: 6px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.65rem;
+        color: #00ff88;
+        border-left: 3px solid #00ff88;
+      }
+      .scaling-guidelines {
+        background: rgba(243, 156, 18, 0.2);
+        border-radius: 6px;
+        padding: 8px;
+        margin: 6px 0;
+      }
+      .guidelines-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
+      }
+      .guidelines-content {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">性能优化技巧</h1>
+      
+      <div class="content-layout">
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-rocket panel-icon"></i>
+            <h2 class="panel-title">核心优化策略</h2>
+          </div>
+          
+          <div class="optimization-categories">
+            <div class="category-item">
+              <div class="category-header">
+                <i class="fas fa-memory category-icon"></i>
+                <div class="category-name">内存优化</div>
+              </div>
+              <div class="category-techniques">
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">激活重计算 (Activation Recomputation)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">梯度检查点 (Gradient Checkpointing)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">序列并行减少激活内存</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">ZeRO优化器状态分片</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="category-item">
+              <div class="category-header">
+                <i class="fas fa-network-wired category-icon"></i>
+                <div class="category-name">通信优化</div>
+              </div>
+              <div class="category-techniques">
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">计算通信重叠 (Overlap)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">梯度分桶 (Gradient Bucketing)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">融合通信操作</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">拓扑感知通信</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="category-item">
+              <div class="category-header">
+                <i class="fas fa-tachometer-alt category-icon"></i>
+                <div class="category-name">计算优化</div>
+              </div>
+              <div class="category-techniques">
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">融合算子 (Fused Operators)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">混合精度训练 (FP16/BF16)</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">Flash Attention优化</div>
+                </div>
+                <div class="technique-item">
+                  <div class="technique-bullet"></div>
+                  <div class="technique-text">CUDA Graph优化</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="performance-metrics">
+            <div class="metrics-title">优化效果</div>
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="metric-value">70%</div>
+                <div class="metric-label">内存节省</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">2-3x</div>
+                <div class="metric-label">吞吐量提升</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">50%</div>
+                <div class="metric-label">通信减少</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">90%+</div>
+                <div class="metric-label">GPU利用率</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="code-snippet">
+# 性能优化配置示例<br/>
+config = {<br/>
+&nbsp;&nbsp;"recompute_activations": True,<br/>
+&nbsp;&nbsp;"sequence_parallel": True,<br/>
+&nbsp;&nbsp;"use_flash_attn": True,<br/>
+&nbsp;&nbsp;"overlap_grad_reduce": True,<br/>
+&nbsp;&nbsp;"use_fused_layernorm": True,<br/>
+&nbsp;&nbsp;"gradient_accumulation_fusion": True<br/>
+}
+          </div>
+        </div>
+        
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-chart-line panel-icon"></i>
+            <h2 class="panel-title">最佳实践与配置</h2>
+          </div>
+          
+          <div class="best-practices">
+            <div class="practice-item">
+              <div class="practice-header">
+              <i class="fas fa-balance-scale practice-icon"></i>
+              <div class="practice-title">并行度配置</div>
+              </div>
+              <div class="practice-desc">
+              <table style="width:100%; border-collapse: collapse; font-size: 0.7rem;">
+              <thead>
+              <tr style="background-color: rgba(255,255,255,0.1);">
+              <th style="padding: 4px; text-align: left; color: white;">并行策略</th>
+              <th style="padding: 4px; text-align: left; color: white;">关键约束</th>
+              <th style="padding: 4px; text-align: left; color: white;">经验值 / 规则</th>
+              <th style="padding: 4px; text-align: left; color: white;">优化目标</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">TP (Tensor Parallelism)</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">严格限制在单节点内</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">• TP ≤ 单节点GPU数 (G)<br/>• 优先取满高速互联组：<br/>  - 8卡节点：TP=4 或 8 (匹配NVLink岛)<br/>  - 4卡节点：TP=2 或 4</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">最小化层内通信延迟（利用NVLink高速带宽）</td>
+              </tr>
+              <tr>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">PP (Pipeline Parallelism)</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">• PP 需整除模型总层数<br/>• PP ≤ 单节点最大PP阶段数 (G / TP)</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">PP ≈ √N (N = 节点总数)<br/>• 例：16节点 → PP=4，64节点 → PP=8<br/>• 满足 PP ≤ G/TP (否则下调)</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">减少跨节点通信次数，平衡显存与气泡开销</td>
+              </tr>
+              <tr>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">DP (Data Parallelism)</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">TP × PP × DP = 总GPU数</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">DP = 总GPU数 / (TP × PP)<br/>• 必须为整数（否则需调整TP或PP）</td>
+              <td style="padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">弹性扩展全局Batch Size，梯度同步开销相对较低</td>
+              </tr>
+              </tbody>
+              </table>
+              </div>
+            </div>
+            
+            <div class="practice-item">
+              <div class="practice-header">
+                <i class="fas fa-memory practice-icon"></i>
+                <div class="practice-title">内存管理</div>
+              </div>
+              <div class="practice-desc">
+                合理设置micro-batch大小，启用激活重计算和序列并行
+              </div>
+            </div>
+            
+            <div class="practice-item">
+              <div class="practice-header">
+                <i class="fas fa-sync practice-icon"></i>
+                <div class="practice-title">通信策略</div>
+              </div>
+              <div class="practice-desc">
+                节点内使用NVLink，节点间使用InfiniBand，重叠计算通信
+              </div>
+            </div>
+            
+            <div class="practice-item">
+              <div class="practice-header">
+                <i class="fas fa-cog practice-icon"></i>
+                <div class="practice-title">超参数调优</div>
+              </div>
+              <div class="practice-desc">
+                根据模型大小调整学习率，使用warmup和cosine衰减
+              </div>
+            </div>
+          </div>
+          
+          <div class="scaling-guidelines">
+            <div class="guidelines-title">扩展指导原则</div>
+            <div class="guidelines-content">
+              • 小模型(≤7B): 主要使用数据并行<br/>
+              • 中等模型(7B-70B): TP+DP组合<br/>
+              • 大模型(≥70B): TP+PP+DP三维并行<br/>
+              • 超大模型(≥500B): 加入MoE和序列并行
+            </div>
+          </div>
+          
+          <div class="configuration-tips">
+            <div class="tip-item">
+              <i class="fas fa-lightbulb tip-icon"></i>
+              <div class="tip-text">
+                <strong>批次大小:</strong> 全局批次=micro_batch×DP×gradient_accumulation
+              </div>
+            </div>
+            <div class="tip-item">
+              <i class="fas fa-clock tip-icon"></i>
+              <div class="tip-text">
+                <strong>检查点:</strong> 定期保存检查点，支持断点续训
+              </div>
+            </div>
+            <div class="tip-item">
+              <i class="fas fa-chart-bar tip-icon"></i>
+              <div class="tip-text">
+                <strong>监控指标:</strong> 关注GPU利用率、内存使用和通信时间
+              </div>
+            </div>
+            <div class="tip-item">
+              <i class="fas fa-bug tip-icon"></i>
+              <div class="tip-text">
+                <strong>调试技巧:</strong> 使用小模型验证配置，逐步扩展规模
+              </div>
+            </div>
+          </div>
+          
+          <div class="code-snippet">
+# 推荐配置模板<br/>
+# 175B模型，1024 GPU配置<br/>
+export TP_SIZE=8<br/>
+export PP_SIZE=16<br/>
+export DP_SIZE=8<br/>
+export MICRO_BATCH_SIZE=1<br/>
+export GLOBAL_BATCH_SIZE=1024<br/>
+export SEQ_LEN=2048<br/>
+export RECOMPUTE_ACTIVATIONS=true<br/>
+export USE_FLASH_ATTN=true
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .slide-container {
+        width: 1280px; 
+        min-height: 720px; 
+        background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 30px;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+      }
+      .title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        height: 100%;
+      }
+      .content-panel {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .panel-icon {
+        font-size: 1.8rem;
+        color: #f39c12;
+        margin-right: 10px;
+      }
+      .panel-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: white;
+      }
+      .code-block {
+        background: rgba(0,0,0,0.4);
+        border-radius: 8px;
+        padding: 12px;
+        margin: 10px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #00ff88;
+        border-left: 4px solid #00ff88;
+        overflow-x: auto;
+        line-height: 1.3;
+      }
+      .implementation-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .step-item {
+        background: rgba(142, 68, 173, 0.2);
+        border-left: 4px solid #8e44ad;
+        padding: 10px;
+        border-radius: 6px;
+      }
+      .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .step-number {
+        width: 20px;
+        height: 20px;
+        background: #8e44ad;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 8px;
+        font-size: 0.7rem;
+      }
+      .step-title {
+        font-weight: bold;
+        color: white;
+        font-size: 0.9rem;
+      }
+      .step-desc {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.8rem;
+        line-height: 1.3;
+      }
+      .communication-flow {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 12px;
+        margin: 10px 0;
+      }
+      .flow-title {
+        font-weight: bold;
+        color: white;
+        margin-bottom: 8px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      .flow-diagram {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .flow-box {
+        background: #3498db;
+        color: white;
+        padding: 6px 8px;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        text-align: center;
+        flex: 1;
+        min-width: 60px;
+      }
+      .flow-arrow {
+        color: #f39c12;
+        font-size: 1rem;
+      }
+      .key-points {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .point-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 8px;
+        border-radius: 6px;
+      }
+      .point-icon {
+        color: #e74c3c;
+        margin-right: 8px;
+        font-size: 0.9rem;
+      }
+      .point-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.8rem;
+        line-height: 1.3;
+      }
+      .formula-box {
+        background: rgba(243, 156, 18, 0.2);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+        text-align: center;
+      }
+      .formula-text {
+        font-family: 'Courier New', monospace;
+        color: #f39c12;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <h1 class="title">ColumnParallelLinear 实现</h1>
+      
+      <div class="main-layout">
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-code panel-icon"></i>
+            <h2 class="panel-title">核心实现代码</h2>
+          </div>
+          
+          <div class="code-block">
+class ColumnParallelLinear(nn.Module):<br/>
+&nbsp;&nbsp;def __init__(self, input_size, output_size, bias=True):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.input_size = input_size<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.output_size = output_size<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.world_size = get_tensor_model_parallel_world_size()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.rank = get_tensor_model_parallel_rank()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 按列分割输出维度<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;assert output_size % self.world_size == 0<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition = output_size // self.world_size<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 初始化权重和偏置<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;self.weight = Parameter(torch.empty(<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition, input_size))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;if bias:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = Parameter(torch.empty(<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;else:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = None
+          </div>
+          
+          <div class="code-block">
+&nbsp;&nbsp;def forward(self, input_):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 输入需要在所有GPU上复制<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;input_parallel = copy_to_tensor_model_parallel_region(input_)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 执行线性变换<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;output_parallel = F.linear(input_parallel, self.weight, self.bias)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;# 返回分割后的输出（不进行聚合）<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;return output_parallel
+          </div>
+          
+          <div class="formula-box">
+            <div class="formula-text">
+              Y_i = X × W_i + b_i<br/>
+              其中 W_i 是第i个GPU的权重分片
+            </div>
+          </div>
+        </div>
+        
+        <div class="content-panel">
+          <div class="panel-header">
+            <i class="fas fa-cogs panel-icon"></i>
+            <h2 class="panel-title">工作流程</h2>
+          </div>
+          
+          <div class="implementation-steps">
+            <div class="step-item">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">权重分割</div>
+              </div>
+              <div class="step-desc">
+                将完整的权重矩阵按列分割到各个GPU，每个GPU存储 output_size/world_size 列
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <div class="step-title">输入复制</div>
+              </div>
+              <div class="step-desc">
+                通过All-Gather操作确保所有GPU都有完整的输入张量
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <div class="step-title">并行计算</div>
+              </div>
+              <div class="step-desc">
+                每个GPU独立计算其负责的输出维度部分
+              </div>
+            </div>
+            
+            <div class="step-item">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <div class="step-title">输出分布</div>
+              </div>
+              <div class="step-desc">
+                保持输出在各GPU上分布，为下一层的RowParallel做准备
+              </div>
+            </div>
+          </div>
+          
+          <div class="communication-flow">
+            <div class="flow-title">通信模式</div>
+            <div class="flow-diagram">
+              <div class="flow-box">输入X</div>
+              <i class="fas fa-arrow-right flow-arrow"></i>
+              <div class="flow-box">All-Gather</div>
+              <i class="fas fa-arrow-right flow-arrow"></i>
+              <div class="flow-box">并行计算</div>
+              <i class="fas fa-arrow-right flow-arrow"></i>
+              <div class="flow-box">分布输出</div>
+            </div>
+          </div>
+          
+          <div class="key-points">
+            <div class="point-item">
+              <i class="fas fa-exclamation-triangle point-icon"></i>
+              <div class="point-text">
+                <strong>内存优化：</strong>每个GPU只存储1/N的权重参数
+              </div>
+            </div>
+            <div class="point-item">
+              <i class="fas fa-sync point-icon"></i>
+              <div class="point-text">
+                <strong>通信需求：</strong>前向传播需要All-Gather输入
+              </div>
+            </div>
+            <div class="point-item">
+              <i class="fas fa-balance-scale point-icon"></i>
+              <div class="point-text">
+                <strong>负载均衡：</strong>要求输出维度能被GPU数整除
+              </div>
+            </div>
+            <div class="point-item">
+              <i class="fas fa-link point-icon"></i>
+              <div class="point-text">
+                <strong>配对使用：</strong>通常与RowParallelLinear配对使用
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-HTML页面转PDF合并工具 (纯Playwright版)
-- 不修改原始HTML的边距或样式
+HTML页面转PDF合并工具 (纯Playwright版 - 动态页面尺寸)
+- 自动检测每个HTML内容的尺寸，避免裁剪
 """
 import os
 import shutil
@@ -16,36 +16,27 @@ logger = logging.getLogger(__name__)
 
 # 尝试导入必要的库
 try:
-    from playwright.sync_api import sync_playwright, Page, Playwright
+    from playwright.sync_api import sync_playwright, Browser
     from pypdf import PdfWriter
 except ImportError:
     logger.error("必需的库未安装。请运行: pip install playwright pypdf")
     logger.error("并且不要忘记初始化Playwright: playwright install")
-    # 退出程序，因为无法继续
     exit(1)
 
 
 class HTMLToPDFConverter:
-    """使用Playwright将多个HTML文件合并为一个PDF"""
+    """使用Playwright将多个HTML文件合并为一个PDF，自动适应内容尺寸"""
 
     def __init__(self):
-        logger.info("Playwright PDF转换器已初始化。")
+        logger.info("Playwright PDF转换器已初始化 (动态尺寸模式)。")
 
     def merge_html_to_pdf(self, html_files: List[str], output_pdf: str) -> str:
         """
         将多个HTML文件按顺序转换并合并为一个PDF。
-
-        Args:
-            html_files (List[str]): 按顺序排列的HTML文件路径列表。
-            output_pdf (str): 输出PDF文件的路径。
-
-        Returns:
-            str: 成功生成的PDF文件路径。
         """
         if not html_files:
             raise ValueError("HTML文件列表不能为空。")
 
-        # 预先检查所有文件是否存在，避免中途失败
         for html_file in html_files:
             if not os.path.exists(html_file):
                 raise FileNotFoundError(f"HTML文件不存在，请检查路径: {html_file}")
@@ -54,7 +45,6 @@ class HTMLToPDFConverter:
         for i, html_file in enumerate(html_files, 1):
             logger.info(f"  {i:02d}. {os.path.basename(html_file)}")
 
-        # 创建一个临时目录来存放中间生成的单页PDF
         temp_dir = tempfile.mkdtemp()
         pdf_files = []
 
@@ -71,37 +61,46 @@ class HTMLToPDFConverter:
                 browser.close()
                 logger.info("Chromium浏览器实例已关闭。")
 
-            # 第二步：合并所有临时PDF文件
             self._merge_pdfs(pdf_files, output_pdf)
-
             return output_pdf
 
         except Exception as e:
             logger.error(f"在转换过程中发生严重错误: {e}", exc_info=True)
             raise
         finally:
-            # 第三步：清理临时文件和目录
             logger.info(f"正在清理临时文件目录: {temp_dir}")
             shutil.rmtree(temp_dir)
 
-    def _convert_single_html(self, browser, html_path: str, output_path: str):
+    def _convert_single_html(self, browser: Browser, html_path: str, output_path: str):
         """
-        使用共享的浏览器实例转换单个HTML文件为PDF。
+        转换单个HTML。先测量内容尺寸，再生成大小匹配的PDF。
         """
         page = browser.new_page()
         absolute_path = os.path.abspath(html_path)
-
-        # 使用 file:/// 协议以确保正确加载本地资源
         page.goto(f"file:///{absolute_path}")
-        # 等待所有网络活动停止，确保页面（包括图片、字体）完全加载
         page.wait_for_load_state('networkidle')
 
-        logger.info(f"  -> 正在渲染 {os.path.basename(html_path)} ...")
+        # --- 核心修改点 ---
+        # 执行JS获取内容的完整渲染尺寸（像素）
+        dimensions = page.evaluate('''() => {
+            return {
+                width: document.documentElement.scrollWidth,
+                height: document.documentElement.scrollHeight
+            }
+        }''')
 
-        # 生成PDF。不指定format, margin等参数，以尊重HTML/CSS中的设置。
+        page_width = f"{dimensions['width']}px"
+        page_height = f"{dimensions['height']}px"
+
+        logger.info(f"  -> 正在渲染 {os.path.basename(html_path)} | 检测到尺寸: {page_width} x {page_height}")
+
+        # 使用测量出的尺寸生成PDF，确保内容完全容纳
         page.pdf(
             path=output_path,
-            print_background=True  # 保留背景色和背景图片
+            width=page_width,
+            height=page_height,
+            print_background=True,
+            page_ranges="1" # 确保只生成一页，避免因微小误差产生空白页
         )
 
         page.close()
@@ -125,29 +124,37 @@ class HTMLToPDFConverter:
 
 def main():
     """主执行函数"""
-
-    # --- 用户配置 ---
-
-    # 1. 把您要转换的HTML文件按顺序放在这个列表里
-    HTML_FILES_IN_ORDER = [
-        "docs/agenda.html",
-        "docs/agenda.html",
-        # "docs/page3.html", # 可以继续添加更多文件
+    html_files = [
+        "docs/pdf_html/00_title_slide.html",
+        "docs/pdf_html/01_agenda.html",
+        "docs/pdf_html/02_what_is_megatron.html",
+        "docs/pdf_html/03_why_megatron.html",
+        "docs/pdf_html/04_megatron_features.html",
+        "docs/pdf_html/05_parallel_overview.html",
+        "docs/pdf_html/06_data_parallelism.html",
+        "docs/pdf_html/07_pipeline_parallelism.html",
+        "docs/pdf_html/08_tensor_parallelism.html",
+        "docs/pdf_html/09_sequence_parallelism.html",
+        "docs/pdf_html/10_ptdp_strategy.html",
+        "docs/pdf_html/11_tp_deep_dive.html",
+        "docs/pdf_html/12_column_parallel.html",
+        "docs/pdf_html/13_row_parallel.html",
+        "docs/pdf_html/14_communication_patterns.html",
+        "docs/pdf_html/15_attention_implementation.html",
+        "docs/pdf_html/16_mlp_implementation.html",
+        "docs/pdf_html/17_moe_implementation.html",
+        "docs/pdf_html/18_performance_optimization.html",
+        "docs/pdf_html/19_best_practices.html",
     ]
-
-    # 2. 指定最终输出的PDF文件名
-    OUTPUT_PDF_NAME = "final_document.pdf"
-
-    # ------------------
+    output_dir = "final_document_autosized.pdf"
 
     try:
         converter = HTMLToPDFConverter()
-        converter.merge_html_to_pdf(HTML_FILES_IN_ORDER, OUTPUT_PDF_NAME)
-        logger.info(f"🎉 全部任务完成！最终文件已保存为: {OUTPUT_PDF_NAME}")
+        converter.merge_html_to_pdf(html_files, output_dir)
+        logger.info(f"🎉 全部任务完成！最终文件已保存为: {output_dir}")
     except (FileNotFoundError, ValueError) as e:
         logger.error(f"执行失败: {e}")
     except Exception:
-        # 上层函数已经记录了详细错误，这里只给一个通用提示
         logger.error("发生了未知错误，请检查上面的日志获取详细信息。")
 
 

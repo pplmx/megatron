@@ -7,5 +7,4 @@ requires-python = ">=3.12"
 dependencies = [
     "playwright>=1.52.0",
     "pypdf2>=3.0.1",
-    "weasyprint>=65.1",
 ]

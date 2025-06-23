@@ -114,20 +114,10 @@ class HTMLToPDFConverter:
                 combined_html += body_content
             
             combined_html += "</body></html>"
-            
-            # 转换为PDF
-            css_style = self.CSS(string='''
-                @page {
-                    margin: 1cm;
-                    size: A4;
-                }
-                body {
-                    font-family: "DejaVu Sans", sans-serif;
-                }
-            ''')
+
             
             html_doc = self.HTML(string=combined_html)
-            html_doc.write_pdf(output_pdf, stylesheets=[css_style])
+            html_doc.write_pdf(output_pdf)
             
             logger.info(f"已合并 {len(html_files)} 个HTML文件到: {output_pdf}")
             return output_pdf
@@ -195,12 +185,6 @@ class HTMLToPDFConverter:
                 page.pdf(
                     path=output_path,
                     format='A4',
-                    margin={
-                        'top': '1cm',
-                        'right': '1cm',
-                        'bottom': '1cm',
-                        'left': '1cm'
-                    }
                 )
                 browser.close()
         
@@ -210,12 +194,12 @@ class HTMLToPDFConverter:
 
 def main():
     """使用示例"""
-    converter = HTMLToPDFConverter(method='weasyprint')  # 推荐使用weasyprint
+    converter = HTMLToPDFConverter(method='playwright')  # 推荐使用weasyprint
     
     # 手动配置HTML文件顺序
     html_files = [
-        "agenda.html",        # 封面
-        "agenda.html",        # 封面
+        "docs/agenda.html",        # 封面
+        "docs/agenda.html",        # 封面
     ]
     
     try:

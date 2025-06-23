@@ -52,6 +52,43 @@
         font-weight: bold;
         color: white;
       }
+      /* 新增：变量说明框样式 */
+      .variable-legend {
+        background: rgba(0,0,0,0.2);
+        border-left: 4px solid #f39c12; /* 使用图标的橙色作为强调 */
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+      .legend-title {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+      .legend-icon {
+        font-size: 1.1rem;
+        color: #f39c12;
+        margin-right: 8px;
+      }
+      .legend-list {
+        padding-left: 5px;
+        margin: 0;
+        list-style-type: none;
+      }
+      .legend-list li {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+      .legend-list b {
+        color: #00ff88; /* 与代码/复杂度颜色一致 */
+        font-family: 'Courier New', monospace;
+        display: inline-block;
+        width: 80px; /* 对齐文本 */
+      }
       .communication-patterns {
         display: flex;
         flex-direction: column;
@@ -194,85 +231,103 @@
             <h2 class="section-title">核心通信操作</h2>
           </div>
           
-          <div class="communication-patterns">
-            <div class="pattern-item">
-              <div class="pattern-header">
-                <i class="fas fa-expand-arrows-alt pattern-icon"></i>
-                <div class="pattern-name">All-Gather</div>
-              </div>
-              <div class="pattern-desc">
-                收集所有GPU上的数据片段，在每个GPU上重建完整数据
-              </div>
-              <div class="pattern-complexity">
-                时间复杂度: O(P × log(N)) (P: 并行度/进程数, N: 数据量)<br/>
-                带宽需求: P × (N-1)/N ≈ P
-              </div>
+          <!-- 新增的变量说明模块 -->
+          <div class="variable-legend">
+            <div class="legend-title">
+              <i class="fas fa-book-open legend-icon"></i>
+              <span>公式变量说明</span>
             </div>
-            
-            <div class="pattern-item">
-              <div class="pattern-header">
-                <i class="fas fa-compress-arrows-alt pattern-icon"></i>
-                <div class="pattern-name">All-Reduce</div>
-              </div>
-              <div class="pattern-desc">
-                对所有GPU上的数据进行归约操作（如求和），结果在所有GPU上相同
-              </div>
-              <div class="pattern-complexity">
-                时间复杂度: O(P × log(N))<br/>
-                带宽需求: 2P × (N-1)/N ≈ 2P
-              </div>
+            <ul class="legend-list">
+              <li><b>P</b>: 参与通信的进程总数 (如GPU数量)。</li>
+              <li><b>M</b>: 每个进程的基础数据块大小 (字节)。</li>
+              <li><b>α (alpha)</b>: 网络延迟 (Latency)，一次通信的固定开销。</li>
+              <li><b>β (beta)</b>: 每字节传输时间 (1 / 带宽)。</li>
+            </ul>
+          </div>
+          <!-- 变量说明模块结束 -->
+
+        <div class="communication-patterns">
+          <div class="pattern-item">
+            <div class="pattern-header">
+              <i class="fas fa-expand-arrows-alt pattern-icon"></i>
+              <div class="pattern-name">All-Gather</div>
             </div>
-            
-            <div class="pattern-item">
-              <div class="pattern-header">
-                <i class="fas fa-share-alt pattern-icon"></i>
-                <div class="pattern-name">Reduce-Scatter</div>
-              </div>
-              <div class="pattern-desc">
-                归约操作后将结果分散到各GPU，每个GPU获得结果的一部分
-              </div>
-              <div class="pattern-complexity">
-                时间复杂度: O(P × log(N))<br/>
-                带宽需求: P × (N-1)/N ≈ P
-              </div>
+            <div class="pattern-desc">
+              每个进程收集所有其他进程的数据，最终每个进程都拥有完整的、拼接后的数据 (大小变为 P*M)。
+            </div>
+            <div class="pattern-complexity">
+              <!-- 使用递归倍增算法模型 -->
+              <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
+              <b>每进程通信量:</b> (P-1)M
             </div>
           </div>
           
-          <div class="code-snippet">
-# NCCL通信原语示例<br/>
-# All-Gather: 收集分布式张量<br/>
-gathered_tensor = all_gather(local_tensor)<br/>
-<br/>
-# All-Reduce: 归约分布式梯度<br/>
-reduced_grad = all_reduce(local_grad, op=SUM)<br/>
-<br/>
-# Reduce-Scatter: 分散归约结果<br/>
-scattered_result = reduce_scatter(input_tensor, op=SUM)
+          <div class="pattern-item">
+            <div class="pattern-header">
+              <i class="fas fa-compress-arrows-alt pattern-icon"></i>
+              <div class="pattern-name">All-Reduce</div>
+            </div>
+            <div class="pattern-desc">
+              对所有进程的数据进行归约操作（如求和），并将最终结果分发给所有进程。
+            </div>
+            <div class="pattern-complexity">
+              <!-- 使用Ring-Allreduce或类似模型 -->
+              <b>时间复杂度:</b> 2log₂(P)α + 2(P-1)/P * Mβ<br/>
+              <b>每进程通信量:</b> ≈ 2(P-1)/P * M
+            </div>
           </div>
           
-          <div class="performance-comparison">
-            <div class="comparison-title">通信开销对比</div>
-            <div class="comparison-table">
-              <div class="table-header">操作</div>
-              <div class="table-header">数据量</div>
-              <div class="table-header">延迟</div>
-              
-              <div class="table-cell">All-Gather</div>
-              <div class="table-cell">P bytes</div>
-              <div class="table-cell">α + βP</div>
-              
-              <div class="table-cell">All-Reduce</div>
-              <div class="table-cell">2P bytes</div>
-              <div class="table-cell">α + 2βP</div>
-              
-              <div class="table-cell">Reduce-Scatter</div>
-              <div class="table-cell">P bytes</div>
-              <div class="table-cell">α + βP</div>
+          <div class="pattern-item">
+            <div class="pattern-header">
+              <i class="fas fa-share-alt pattern-icon"></i>
+              <div class="pattern-name">Reduce-Scatter</div>
+            </div>
+            <div class="pattern-desc">
+              对所有进程的数据进行归约，然后将结果的不同分块散发给对应的进程 (每个进程获得大小为M的结果)。
+            </div>
+            <div class="pattern-complexity">
+              <!-- 使用递归减半算法模型 -->
+              <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
+              <b>每进程通信量:</b> (P-1)M
             </div>
           </div>
         </div>
+
+        <div class="code-snippet">
+        # NCCL通信原语示例<br/>
+        # All-Gather: 收集分布式张量<br/>
+        gathered_tensor = all_gather(local_tensor)<br/>
+        <br/>
+        # All-Reduce: 归约分布式梯度<br/>
+        reduced_grad = all_reduce(local_grad, op=SUM)<br/>
+        <br/>
+        # Reduce-Scatter: 分散归约结果<br/>
+        scattered_result = reduce_scatter(input_tensor, op=SUM)
+        </div>
+
+        <div class="performance-comparison">
+          <div class="comparison-title">通信开销对比 (基于高效算法)</div>
+          <div class="comparison-table">
+            <div class="table-header">操作</div>
+            <div class="table-header">带宽影响 (每进程总通信量)</div>
+            <div class="table-header">延迟影响 (通信启动次数)</div>
+            
+            <div class="table-cell">All-Gather</div>
+            <div class="table-cell">(P-1)M</div>
+            <div class="table-cell">log₂(P)</div>
+            
+            <div class="table-cell">All-Reduce</div>
+            <div class="table-cell">≈ 2(P-1)M / P</div>
+            <div class="table-cell">2log₂(P)</div>
+            
+            <div class="table-cell">Reduce-Scatter</div>
+            <div class="table-cell">(P-1)M</div>
+            <div class="table-cell">log₂(P)</div>
+          </div>
+        </div>
+      </div> <!-- 左侧栏结束 -->
         
-        <div class="content-section">
+        <div class="content-section"> <!-- 右侧栏开始 -->
           <div class="section-header">
             <i class="fas fa-tachometer-alt section-icon"></i>
             <h2 class="section-title">性能优化策略</h2>
@@ -362,3 +417,4 @@ bucket.all_reduce()
     </div>
   </body>
 </html>
+

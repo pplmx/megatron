@@ -1,153 +1,206 @@
 import io
 import logging
-import os
+from pathlib import Path
 
 from playwright.sync_api import Browser, sync_playwright
 from pypdf import PdfWriter
 
-# 配置日志
+# 配置日志格式
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# --- 配置区 ---
-# 现在可以指定一个目录，或者一个手动排序的文件列表
-# 示例1：指定目录
-HTML_SOURCE = "docs/pdf_html"
-
-# 示例2：手动指定文件列表 (如果需要特定顺序)
-# HTML_SOURCE = [
-#     "docs/pdf_html/00_title_slide.html",
-#     "docs/pdf_html/01_agenda.html",
-#     # ...
-# ]
-
-OUTPUT_PDF_FILE = "final_document_from_directory.pdf"
-
 
 class HTMLToPDFConverter:
-    """使用Playwright将多个HTML文件合并为一个PDF，自动适应内容尺寸，并在内存中处理。"""
+    """
+    使用Playwright将HTML文件转换并合并为PDF的转换器
+
+    支持两种输入模式：
+    1. 传入目录路径：自动扫描目录下的HTML文件，按文件名字母顺序处理
+    2. 传入文件列表：按用户指定的顺序处理文件
+    """
 
     def __init__(self):
-        logger.info("Playwright PDF转换器已初始化 (内存优化/目录支持模式)。")
+        # PDF生成选项配置
+        self.pdf_options = {
+            "print_background": True,  # 包含背景颜色和图片
+            "page_ranges": "1",  # 只导出第一页（避免分页）
+        }
+        logger.info("HTML转PDF转换器已初始化")
 
-    def merge_html_to_pdf(self, html_source: str | list[str], output_pdf: str):
+    def convert(self, source: str | list[str], output_path: str) -> None:
         """
-        将多个HTML文件按顺序转换并合并为一个PDF。
+        将HTML文件转换为PDF
 
         Args:
-            html_source: 可以是一个存放HTML文件的目录路径(str)，或一个文件路径列表(List[str])。
-            output_pdf: 输出PDF文件的路径。
+            source: HTML文件来源，支持以下格式：
+                   - 目录路径 (str): 扫描目录下所有HTML文件，按文件名排序
+                   - 文件列表 (list[str]): 按列表中的顺序处理文件
+            output_path: 输出PDF文件的完整路径
         """
-        # --- 核心修改点：处理输入源 ---
-        if isinstance(html_source, str) and os.path.isdir(html_source):
-            logger.info(f"检测到输入为目录: '{html_source}'. 正在扫描HTML文件...")
-            try:
-                # 筛选出html文件并按文件名排序
-                filenames = sorted([f for f in os.listdir(html_source) if f.lower().endswith((".html", ".htm"))])
-                if not filenames:
-                    raise FileNotFoundError(f"在目录 '{html_source}' 中没有找到任何HTML文件。")
-                # 构建完整路径列表
-                html_files = [os.path.join(html_source, f) for f in filenames]
-                logger.info(f"找到 {len(html_files)} 个文件，将按字母顺序处理。")
-            except FileNotFoundError as e:
-                logger.error(e)
-                raise
-        elif isinstance(html_source, list):
-            logger.info("检测到输入为手动指定的文件列表。")
-            html_files = html_source
-        else:
-            raise TypeError("输入源 'html_source' 必须是目录路径(str)或文件列表(list)。")
+        # 解析并获取待处理的HTML文件列表
+        html_files = self._resolve_html_files(source)
+        # 验证所有文件是否存在
+        self._validate_files(html_files)
 
-        # --- 后续逻辑保持不变 ---
-        if not html_files:
-            raise ValueError("最终要处理的HTML文件列表为空。")
+        logger.info(f"开始转换 {len(html_files)} 个HTML文件")
 
-        for html_file in html_files:
-            if not os.path.exists(html_file):
-                raise FileNotFoundError(f"HTML文件不存在，请检查路径: {html_file}")
-
-        logger.info(f"开始转换 {len(html_files)} 个HTML文件:")
-        for i, html_file in enumerate(html_files, 1):
-            logger.info(f"  {i:02d}. {os.path.basename(html_file)}")
-
+        # 存储每个HTML文件转换后的PDF字节数据
         pdf_bytes_list = []
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch()
-                logger.info("Chromium浏览器实例已启动。")
 
-                for html_file in html_files:
-                    pdf_bytes = self._convert_single_html_to_bytes(browser, html_file)
+        # 使用Playwright启动浏览器进行转换
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            try:
+                # 逐个转换HTML文件
+                for i, html_file in enumerate(html_files, 1):
+                    logger.info(f"  [{i:02d}/{len(html_files)}] {Path(html_file).name}")
+                    pdf_bytes = self._convert_single_file(browser, html_file)
                     pdf_bytes_list.append(pdf_bytes)
-
+            finally:
+                # 确保浏览器正确关闭
                 browser.close()
-                logger.info("Chromium浏览器实例已关闭。")
 
-            self._merge_pdfs_from_bytes(pdf_bytes_list, output_pdf)
+        # 将所有PDF页面合并为单个文件
+        self._merge_pdfs(pdf_bytes_list, output_path)
+        logger.info(f"✅ 转换完成: {output_path}")
 
-        except Exception as e:
-            logger.error(f"在转换过程中发生严重错误: {e}", exc_info=True)
-            raise
+    def _resolve_html_files(self, source: str | list[str]) -> list[str]:
+        """
+        解析HTML文件列表
 
-    def _convert_single_html_to_bytes(self, browser: Browser, html_path: str) -> bytes:
-        """转换单个HTML到PDF字节流，并返回。"""
+        处理逻辑：
+        - 如果是列表：直接返回（按用户指定顺序）
+        - 如果是单个文件：返回包含该文件的列表
+        - 如果是目录：扫描并按文件名排序返回HTML文件列表
+        """
+        # 情况1：用户提供文件列表，按用户指定顺序处理
+        if isinstance(source, list):
+            logger.info(f"使用用户指定的文件列表，共 {len(source)} 个文件")
+            return source
+
+        source_path = Path(source)
+        if not source_path.exists():
+            raise FileNotFoundError(f"路径不存在: {source}")
+
+        # 情况2：单个文件
+        if source_path.is_file():
+            logger.info(f"处理单个文件: {source_path.name}")
+            return [str(source_path)]
+
+        # 情况3：目录，按文件名字母顺序自动排序
+        logger.info(f"扫描目录: {source}")
+        html_files = sorted(str(f) for f in source_path.iterdir() if f.suffix.lower() in {".html", ".htm"})
+
+        if not html_files:
+            raise ValueError(f"目录中未找到HTML文件: {source}")
+
+        logger.info(f"找到 {len(html_files)} 个HTML文件，将按文件名顺序处理")
+        return html_files
+
+    def _validate_files(self, html_files: list[str]) -> None:
+        """
+        验证HTML文件是否存在
+
+        Args:
+            html_files: HTML文件路径列表
+
+        Raises:
+            FileNotFoundError: 当任何文件不存在时抛出异常
+        """
+        for html_file in html_files:
+            if not Path(html_file).exists():
+                raise FileNotFoundError(f"HTML文件不存在: {html_file}")
+
+    def _convert_single_file(self, browser: Browser, html_path: str) -> bytes:
+        """
+        转换单个HTML文件为PDF字节数据
+
+        Args:
+            browser: Playwright浏览器实例
+            html_path: HTML文件路径
+
+        Returns:
+            PDF文件的字节数据
+        """
         page = browser.new_page()
-        absolute_path = os.path.abspath(html_path)
-        page.goto(f"file:///{absolute_path}")
-        page.wait_for_load_state("networkidle")
+        try:
+            # 加载HTML文件（使用file://协议）
+            file_url = f"file:///{Path(html_path).resolve()}"
+            page.goto(file_url)
+            # 等待页面完全加载（包括异步资源）
+            page.wait_for_load_state("networkidle")
 
-        # 在测量尺寸之前，强制移除 html 和 body 的内外边距
-        page.add_style_tag(
-            content="""
+            # 移除页面默认边距，确保内容完整显示
+            page.add_style_tag(
+                content="""
                 html, body {
                     margin: 0 !important;
                     padding: 0 !important;
                 }
             """
-        )
+            )
 
-        # 现在进行测量，此时的尺寸将是不含任何外边距的纯内容尺寸
-        dimensions: dict[str, float] = page.evaluate("""() => {
-            return {
+            # 测量页面内容的实际尺寸
+            dimensions = page.evaluate("""() => ({
                 width: Math.ceil(document.documentElement.scrollWidth),
                 height: Math.ceil(document.documentElement.scrollHeight)
-            }
-        }""")
+            })""")
 
-        page_width = f"{dimensions['width']}px"
-        page_height = f"{dimensions['height']}px"
+            # 根据内容尺寸生成PDF，确保不会裁切内容
+            return page.pdf(width=f"{dimensions['width']}px", height=f"{dimensions['height']}px", **self.pdf_options)
+        finally:
+            # 关闭页面释放资源
+            page.close()
 
-        logger.info(f"  -> 正在渲染 {os.path.basename(html_path)} | 检测到尺寸: {page_width} x {page_height}")
+    def _merge_pdfs(self, pdf_bytes_list: list[bytes], output_path: str) -> None:
+        """
+        将多个PDF字节流合并为单个PDF文件
 
-        pdf_content = page.pdf(width=page_width, height=page_height, print_background=True, page_ranges="1")
-        page.close()
-        return pdf_content
+        Args:
+            pdf_bytes_list: PDF字节数据列表
+            output_path: 输出文件路径
+        """
+        writer = PdfWriter()
 
-    def _merge_pdfs_from_bytes(self, pdf_bytes_list: list[bytes], output_path: str):
-        """从字节流列表合并PDF。"""
-        merger = PdfWriter()
-        logger.info("开始从内存中合并所有PDF页面...")
-
+        # 将每个PDF的字节数据添加到合并器中
         for pdf_bytes in pdf_bytes_list:
             pdf_stream = io.BytesIO(pdf_bytes)
-            merger.append(pdf_stream)
+            writer.append(pdf_stream)
 
+        # 写入最终的PDF文件
         with open(output_path, "wb") as f:
-            merger.write(f)
-        merger.close()
-        logger.info(f"成功合并 {len(pdf_bytes_list)} 个页面到: {output_path}")
+            writer.write(f)
+
+        # 清理资源
+        writer.close()
+        logger.info(f"成功合并 {len(pdf_bytes_list)} 个页面")
 
 
 def main():
-    """主执行函数"""
+    """
+    主程序入口
+
+    使用示例：
+    1. 处理目录（按文件名排序）:
+       html_source = "docs/pdf_html"
+
+    2. 指定文件顺序（按用户定义顺序）:
+       html_source = [
+           "docs/title.html",
+           "docs/chapter1.html",
+           "docs/chapter2.html"
+       ]
+    """
+    html_source = "docs/pdf_html"
+    output_pdf = "output.pdf"
+
+    # ================== 执行转换 ==================
     try:
         converter = HTMLToPDFConverter()
-        converter.merge_html_to_pdf(HTML_SOURCE, OUTPUT_PDF_FILE)
-        logger.info(f"🎉 全部任务完成！最终文件已保存为: {OUTPUT_PDF_FILE}")
-    except (FileNotFoundError, ValueError, TypeError) as e:
-        logger.error(f"执行失败: {e}")
-    except Exception:
-        logger.error("发生了未知错误，请检查上面的日志获取详细信息。")
+        converter.convert(html_source, output_pdf)
+    except Exception as e:
+        logger.error(f"转换失败: {e}")
+        raise
 
 
 if __name__ == "__main__":

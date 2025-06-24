@@ -1,418 +1,452 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 25px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.3rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 18px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        height: 100%;
-      }
-      .content-panel {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 16px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .panel-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .panel-icon {
-        font-size: 1.6rem;
-        color: #f39c12;
-        margin-right: 8px;
-      }
-      .panel-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-      }
-      .mlp-structure {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .structure-layer {
-        background: rgba(39, 174, 96, 0.2);
-        border-left: 4px solid #27ae60;
-        padding: 10px;
-        border-radius: 6px;
-      }
-      .layer-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-      }
-      .layer-icon {
-        font-size: 1rem;
-        color: #e74c3c;
-        margin-right: 6px;
-      }
-      .layer-name {
-        font-weight: bold;
-        color: white;
-        font-size: 0.85rem;
-      }
-      .layer-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.75rem;
-        line-height: 1.3;
-      }
-      .code-block {
-        background: rgba(0,0,0,0.4);
-        border-radius: 6px;
-        padding: 10px;
-        margin: 8px 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.65rem;
-        color: #00ff88;
-        border-left: 3px solid #00ff88;
-        overflow-x: auto;
-        line-height: 1.2;
-      }
-      .activation-functions {
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 10px;
-        margin: 8px 0;
-      }
-      .activation-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 6px;
-        font-size: 0.8rem;
-        text-align: center;
-      }
-      .activation-list {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .activation-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .activation-name {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        font-weight: bold;
-      }
-      .activation-formula {
-        font-family: 'Courier New', monospace;
-        color: #ffffff;
-        font-size: 0.65rem;
-      }
-      .parallel-implementation {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .impl-step {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .step-number {
-        width: 16px;
-        height: 16px;
-        background: #f39c12;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 6px;
-        font-size: 0.6rem;
-      }
-      .step-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .memory-savings {
-        background: rgba(46, 204, 113, 0.2);
-        border-radius: 6px;
-        padding: 8px;
-        margin: 6px 0;
-      }
-      .savings-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 4px;
-        font-size: 0.75rem;
-      }
-      .savings-content {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .optimization-techniques {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .technique-item {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .technique-icon {
-        color: #2ecc71;
-        margin-right: 6px;
-        font-size: 0.8rem;
-      }
-      .technique-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .performance-metrics {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        margin-top: 8px;
-      }
-      .metric-box {
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-        text-align: center;
-      }
-      .metric-value {
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #e74c3c;
-      }
-      .metric-label {
-        font-size: 0.6rem;
-        color: rgba(255,255,255,0.7);
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 18px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            height: 100%;
+        }
+
+        .content-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .panel-icon {
+            font-size: 1.6rem;
+            color: #f39c12;
+            margin-right: 8px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .mlp-structure {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .structure-layer {
+            background: rgba(39, 174, 96, 0.2);
+            border-left: 4px solid #27ae60;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .layer-icon {
+            font-size: 1rem;
+            color: #e74c3c;
+            margin-right: 6px;
+        }
+
+        .layer-name {
+            font-weight: bold;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .layer-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.65rem;
+            color: #00ff88;
+            border-left: 3px solid #00ff88;
+            overflow-x: auto;
+            line-height: 1.2;
+        }
+
+        .activation-functions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        .activation-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .activation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .activation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .activation-name {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .activation-formula {
+            font-family: 'Courier New', monospace;
+            color: #ffffff;
+            font-size: 0.65rem;
+        }
+
+        .parallel-implementation {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .impl-step {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            width: 16px;
+            height: 16px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 6px;
+            font-size: 0.6rem;
+        }
+
+        .step-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .memory-savings {
+            background: rgba(46, 204, 113, 0.2);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        .savings-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+        }
+
+        .savings-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .optimization-techniques {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .technique-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .technique-icon {
+            color: #2ecc71;
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        .technique-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .metric-label {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">MLP 模块实现</h1>
-      
-      <div class="content-layout">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">MLP 模块实现</h1>
+
+    <div class="content-layout">
         <div class="content-panel">
-          <div class="panel-header">
-            <i class="fas fa-network-wired panel-icon"></i>
-            <h2 class="panel-title">MLP 结构设计</h2>
-          </div>
-          
-          <div class="mlp-structure">
-            <div class="structure-layer">
-              <div class="layer-header">
-                <i class="fas fa-arrow-up layer-icon"></i>
-                <div class="layer-name">上投影层 (Up Projection)</div>
-              </div>
-              <div class="layer-desc">
-                使用ColumnParallelLinear将隐藏维度扩展到中间维度(通常4倍)
-              </div>
+            <div class="panel-header">
+                <i class="fas fa-network-wired panel-icon"></i>
+                <h2 class="panel-title">MLP 结构设计</h2>
             </div>
-            
-            <div class="structure-layer">
-              <div class="layer-header">
-                <i class="fas fa-bolt layer-icon"></i>
-                <div class="layer-name">激活函数</div>
-              </div>
-              <div class="layer-desc">
-                应用非线性激活函数，如GELU、SwiGLU或ReLU，增强模型表达能力
-              </div>
+
+            <div class="mlp-structure">
+                <div class="structure-layer">
+                    <div class="layer-header">
+                        <i class="fas fa-arrow-up layer-icon"></i>
+                        <div class="layer-name">上投影层 (Up Projection)</div>
+                    </div>
+                    <div class="layer-desc">
+                        使用ColumnParallelLinear将隐藏维度扩展到中间维度(通常4倍)
+                    </div>
+                </div>
+
+                <div class="structure-layer">
+                    <div class="layer-header">
+                        <i class="fas fa-bolt layer-icon"></i>
+                        <div class="layer-name">激活函数</div>
+                    </div>
+                    <div class="layer-desc">
+                        应用非线性激活函数，如GELU、SwiGLU或ReLU，增强模型表达能力
+                    </div>
+                </div>
+
+                <div class="structure-layer">
+                    <div class="layer-header">
+                        <i class="fas fa-arrow-down layer-icon"></i>
+                        <div class="layer-name">下投影层 (Down Projection)</div>
+                    </div>
+                    <div class="layer-desc">
+                        使用RowParallelLinear将中间维度压缩回隐藏维度
+                    </div>
+                </div>
             </div>
-            
-            <div class="structure-layer">
-              <div class="layer-header">
-                <i class="fas fa-arrow-down layer-icon"></i>
-                <div class="layer-name">下投影层 (Down Projection)</div>
-              </div>
-              <div class="layer-desc">
-                使用RowParallelLinear将中间维度压缩回隐藏维度
-              </div>
+
+            <div class="activation-functions">
+                <div class="activation-title">常用激活函数</div>
+                <div class="activation-list">
+                    <div class="activation-item">
+                        <span class="activation-name">GELU</span>
+                        <span class="activation-formula">x·Φ(x)</span>
+                    </div>
+                    <div class="activation-item">
+                        <span class="activation-name">SwiGLU</span>
+                        <span class="activation-formula">Swish(xW₁)⊙(xW₂)</span>
+                    </div>
+                    <div class="activation-item">
+                        <span class="activation-name">ReLU</span>
+                        <span class="activation-formula">max(0,x)</span>
+                    </div>
+                    <div class="activation-item">
+                        <span class="activation-name">GLU</span>
+                        <span class="activation-formula">σ(xW₁)⊙(xW₂)</span>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="activation-functions">
-            <div class="activation-title">常用激活函数</div>
-            <div class="activation-list">
-              <div class="activation-item">
-                <span class="activation-name">GELU</span>
-                <span class="activation-formula">x·Φ(x)</span>
-              </div>
-              <div class="activation-item">
-                <span class="activation-name">SwiGLU</span>
-                <span class="activation-formula">Swish(xW₁)⊙(xW₂)</span>
-              </div>
-              <div class="activation-item">
-                <span class="activation-name">ReLU</span>
-                <span class="activation-formula">max(0,x)</span>
-              </div>
-              <div class="activation-item">
-                <span class="activation-name">GLU</span>
-                <span class="activation-formula">σ(xW₁)⊙(xW₂)</span>
-              </div>
+
+            <div class="code-block">
+                class ParallelMLP(nn.Module):<br/>
+                &nbsp;&nbsp;def __init__(self, hidden_size, intermediate_size):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.hidden_size = hidden_size<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.intermediate_size = intermediate_size<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;# 上投影层 (Column Parallel)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.dense_h_to_4h = ColumnParallelLinear(<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, intermediate_size)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;# 下投影层 (Row Parallel)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.dense_4h_to_h = RowParallelLinear(<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intermediate_size, hidden_size)
             </div>
-          </div>
-          
-          <div class="code-block">
-class ParallelMLP(nn.Module):<br/>
-&nbsp;&nbsp;def __init__(self, hidden_size, intermediate_size):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.hidden_size = hidden_size<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.intermediate_size = intermediate_size<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;# 上投影层 (Column Parallel)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.dense_h_to_4h = ColumnParallelLinear(<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, intermediate_size)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;# 下投影层 (Row Parallel)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.dense_4h_to_h = RowParallelLinear(<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intermediate_size, hidden_size)
-          </div>
-          
-          <div class="memory-savings">
-            <div class="savings-title">内存节省效果</div>
-            <div class="savings-content">
-              • 上投影权重: H×4H/N → 节省75%内存<br/>
-              • 中间激活: 4H/N → 节省75%内存<br/>
-              • 下投影权重: 4H×H/N → 节省75%内存
+
+            <div class="memory-savings">
+                <div class="savings-title">内存节省效果</div>
+                <div class="savings-content">
+                    • 上投影权重: H×4H/N → 节省75%内存<br/>
+                    • 中间激活: 4H/N → 节省75%内存<br/>
+                    • 下投影权重: 4H×H/N → 节省75%内存
+                </div>
             </div>
-          </div>
         </div>
-        
+
         <div class="content-panel">
-          <div class="panel-header">
-            <i class="fas fa-cogs panel-icon"></i>
-            <h2 class="panel-title">并行实现</h2>
-          </div>
-          
-          <div class="parallel-implementation">
-            <div class="impl-step">
-              <div class="step-number">1</div>
-              <div class="step-text">输入通过All-Gather复制到所有GPU</div>
+            <div class="panel-header">
+                <i class="fas fa-cogs panel-icon"></i>
+                <h2 class="panel-title">并行实现</h2>
             </div>
-            <div class="impl-step">
-              <div class="step-number">2</div>
-              <div class="step-text">每个GPU计算部分中间层神经元</div>
+
+            <div class="parallel-implementation">
+                <div class="impl-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">输入通过All-Gather复制到所有GPU</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">每个GPU计算部分中间层神经元</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">并行应用激活函数</div>
+                </div>
+                <div class="impl-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">通过All-Reduce聚合最终输出</div>
+                </div>
             </div>
-            <div class="impl-step">
-              <div class="step-number">3</div>
-              <div class="step-text">并行应用激活函数</div>
+
+            <div class="code-block">
+                def forward(self, hidden_states):<br/>
+                &nbsp;&nbsp;# 上投影 (Column Parallel)<br/>
+                &nbsp;&nbsp;intermediate_parallel = self.dense_h_to_4h(hidden_states)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 激活函数 (每个GPU独立计算)<br/>
+                &nbsp;&nbsp;intermediate_parallel = gelu(intermediate_parallel)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 下投影 (Row Parallel)<br/>
+                &nbsp;&nbsp;output = self.dense_4h_to_h(intermediate_parallel)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;return output<br/>
+                <br/>
+                # SwiGLU变体实现<br/>
+                def swiglu_forward(self, hidden_states):<br/>
+                &nbsp;&nbsp;# 双路上投影<br/>
+                &nbsp;&nbsp;gate = self.gate_proj(hidden_states)<br/>
+                &nbsp;&nbsp;up = self.up_proj(hidden_states)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# SwiGLU激活<br/>
+                &nbsp;&nbsp;intermediate = swish(gate) * up<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 下投影<br/>
+                &nbsp;&nbsp;output = self.down_proj(intermediate)<br/>
+                &nbsp;&nbsp;return output
             </div>
-            <div class="impl-step">
-              <div class="step-number">4</div>
-              <div class="step-text">通过All-Reduce聚合最终输出</div>
+
+            <div class="optimization-techniques">
+                <div class="technique-item">
+                    <i class="fas fa-compress technique-icon"></i>
+                    <div class="technique-text">
+                        <strong>激活重计算:</strong> 节省中间激活内存
+                    </div>
+                </div>
+                <div class="technique-item">
+                    <i class="fas fa-sync technique-icon"></i>
+                    <div class="technique-text">
+                        <strong>融合激活:</strong> 将激活函数与线性层融合
+                    </div>
+                </div>
+                <div class="technique-item">
+                    <i class="fas fa-balance-scale technique-icon"></i>
+                    <div class="technique-text">
+                        <strong>负载均衡:</strong> 确保各GPU计算负载均匀
+                    </div>
+                </div>
+                <div class="technique-item">
+                    <i class="fas fa-memory technique-icon"></i>
+                    <div class="technique-text">
+                        <strong>混合精度:</strong> 使用FP16减少内存和通信
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="code-block">
-def forward(self, hidden_states):<br/>
-&nbsp;&nbsp;# 上投影 (Column Parallel)<br/>
-&nbsp;&nbsp;intermediate_parallel = self.dense_h_to_4h(hidden_states)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 激活函数 (每个GPU独立计算)<br/>
-&nbsp;&nbsp;intermediate_parallel = gelu(intermediate_parallel)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 下投影 (Row Parallel)<br/>
-&nbsp;&nbsp;output = self.dense_4h_to_h(intermediate_parallel)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;return output<br/>
-<br/>
-# SwiGLU变体实现<br/>
-def swiglu_forward(self, hidden_states):<br/>
-&nbsp;&nbsp;# 双路上投影<br/>
-&nbsp;&nbsp;gate = self.gate_proj(hidden_states)<br/>
-&nbsp;&nbsp;up = self.up_proj(hidden_states)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# SwiGLU激活<br/>
-&nbsp;&nbsp;intermediate = swish(gate) * up<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 下投影<br/>
-&nbsp;&nbsp;output = self.down_proj(intermediate)<br/>
-&nbsp;&nbsp;return output
-          </div>
-          
-          <div class="optimization-techniques">
-            <div class="technique-item">
-              <i class="fas fa-compress technique-icon"></i>
-              <div class="technique-text">
-                <strong>激活重计算:</strong> 节省中间激活内存
-              </div>
+
+            <div class="performance-metrics">
+                <div class="metric-box">
+                    <div class="metric-value">75%</div>
+                    <div class="metric-label">内存节省</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">2次</div>
+                    <div class="metric-label">通信次数</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">O(H²)</div>
+                    <div class="metric-label">通信量</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">线性</div>
+                    <div class="metric-label">扩展性</div>
+                </div>
             </div>
-            <div class="technique-item">
-              <i class="fas fa-sync technique-icon"></i>
-              <div class="technique-text">
-                <strong>融合激活:</strong> 将激活函数与线性层融合
-              </div>
-            </div>
-            <div class="technique-item">
-              <i class="fas fa-balance-scale technique-icon"></i>
-              <div class="technique-text">
-                <strong>负载均衡:</strong> 确保各GPU计算负载均匀
-              </div>
-            </div>
-            <div class="technique-item">
-              <i class="fas fa-memory technique-icon"></i>
-              <div class="technique-text">
-                <strong>混合精度:</strong> 使用FP16减少内存和通信
-              </div>
-            </div>
-          </div>
-          
-          <div class="performance-metrics">
-            <div class="metric-box">
-              <div class="metric-value">75%</div>
-              <div class="metric-label">内存节省</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">2次</div>
-              <div class="metric-label">通信次数</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">O(H²)</div>
-              <div class="metric-label">通信量</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">线性</div>
-              <div class="metric-label">扩展性</div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>

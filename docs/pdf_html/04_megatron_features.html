@@ -1,210 +1,224 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #27ae60 0%, #2980b9 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 35px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        height: 100%;
-      }
-      .feature-card {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        transition: transform 0.3s ease;
-      }
-      .feature-card:hover {
-        transform: translateY(-5px);
-      }
-      .feature-icon {
-        font-size: 3rem;
-        color: #f39c12;
-        margin-bottom: 15px;
-      }
-      .feature-title {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: white;
-        margin-bottom: 12px;
-      }
-      .feature-description {
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.9);
-        line-height: 1.5;
-        flex-grow: 1;
-      }
-      .feature-highlight {
-        background: rgba(243, 156, 18, 0.2);
-        border-radius: 8px;
-        padding: 8px;
-        margin-top: 10px;
-        font-size: 0.8rem;
-        color: #f39c12;
-        font-weight: bold;
-      }
-      .bottom-section {
-        grid-column: span 3;
-        background: rgba(255,255,255,0.05);
-        border-radius: 15px;
-        padding: 20px;
-        margin-top: 15px;
-        text-align: center;
-      }
-      .bottom-title {
-        font-size: 1.5rem;
-        color: white;
-        font-weight: bold;
-        margin-bottom: 15px;
-      }
-      .tech-stack {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        align-items: center;
-      }
-      .tech-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: rgba(255,255,255,0.8);
-      }
-      .tech-icon {
-        font-size: 2rem;
-        margin-bottom: 5px;
-        color: #3498db;
-      }
-      .tech-name {
-        font-size: 0.9rem;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #27ae60 0%, #2980b9 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            height: 100%;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: #f39c12;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .feature-highlight {
+            background: rgba(243, 156, 18, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .bottom-section {
+            grid-column: span 3;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .bottom-title {
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .tech-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tech-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+
+        .tech-name {
+            font-size: 0.9rem;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">Megatron-LM 核心特性</h1>
-      
-      <div class="features-grid">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">Megatron-LM 核心特性</h1>
+
+    <div class="features-grid">
         <div class="feature-card">
-          <i class="fas fa-layer-group feature-icon"></i>
-          <h3 class="feature-title">张量并行</h3>
-          <p class="feature-description">
-            将单个张量操作分割到多个GPU上并行执行，实现模型参数的水平分割，有效突破单GPU内存限制
-          </p>
-          <div class="feature-highlight">
-            支持Transformer各层并行
-          </div>
+            <i class="fas fa-layer-group feature-icon"></i>
+            <h3 class="feature-title">张量并行</h3>
+            <p class="feature-description">
+                将单个张量操作分割到多个GPU上并行执行，实现模型参数的水平分割，有效突破单GPU内存限制
+            </p>
+            <div class="feature-highlight">
+                支持Transformer各层并行
+            </div>
         </div>
-        
+
         <div class="feature-card">
-          <i class="fas fa-stream feature-icon"></i>
-          <h3 class="feature-title">流水线并行</h3>
-          <p class="feature-description">
-            将模型层按序分配到不同GPU，采用1F1B调度策略，最小化流水线气泡，提高GPU利用率
-          </p>
-          <div class="feature-highlight">
-            支持交错流水线调度
-          </div>
+            <i class="fas fa-stream feature-icon"></i>
+            <h3 class="feature-title">流水线并行</h3>
+            <p class="feature-description">
+                将模型层按序分配到不同GPU，采用1F1B调度策略，最小化流水线气泡，提高GPU利用率
+            </p>
+            <div class="feature-highlight">
+                支持交错流水线调度
+            </div>
         </div>
-        
+
         <div class="feature-card">
-          <i class="fas fa-database feature-icon"></i>
-          <h3 class="feature-title">数据并行</h3>
-          <p class="feature-description">
-            通过分布式优化器分片梯度和优化器状态，减少内存占用，支持ZeRO优化策略
-          </p>
-          <div class="feature-highlight">
-            ZeRO-1/2/3 集成
-          </div>
+            <i class="fas fa-database feature-icon"></i>
+            <h3 class="feature-title">数据并行</h3>
+            <p class="feature-description">
+                通过分布式优化器分片梯度和优化器状态，减少内存占用，支持ZeRO优化策略
+            </p>
+            <div class="feature-highlight">
+                ZeRO-1/2/3 集成
+            </div>
         </div>
-        
+
         <div class="feature-card">
-          <i class="fas fa-memory feature-icon"></i>
-          <h3 class="feature-title">内存优化</h3>
-          <p class="feature-description">
-            选择性激活重计算、梯度检查点、混合精度训练等技术，大幅降低内存使用
-          </p>
-          <div class="feature-highlight">
-            节省70%激活内存
-          </div>
+            <i class="fas fa-memory feature-icon"></i>
+            <h3 class="feature-title">内存优化</h3>
+            <p class="feature-description">
+                选择性激活重计算、梯度检查点、混合精度训练等技术，大幅降低内存使用
+            </p>
+            <div class="feature-highlight">
+                节省70%激活内存
+            </div>
         </div>
-        
+
         <div class="feature-card">
-          <i class="fas fa-bolt feature-icon"></i>
-          <h3 class="feature-title">融合算子</h3>
-          <p class="feature-description">
-            融合Softmax、LayerNorm、Dropout等操作，减少kernel启动开销，提升计算效率
-          </p>
-          <div class="feature-highlight">
-            CUDA内核优化
-          </div>
+            <i class="fas fa-bolt feature-icon"></i>
+            <h3 class="feature-title">融合算子</h3>
+            <p class="feature-description">
+                融合Softmax、LayerNorm、Dropout等操作，减少kernel启动开销，提升计算效率
+            </p>
+            <div class="feature-highlight">
+                CUDA内核优化
+            </div>
         </div>
-        
+
         <div class="feature-card">
-          <i class="fas fa-exchange-alt feature-icon"></i>
-          <h3 class="feature-title">检查点转换</h3>
-          <p class="feature-description">
-            支持不同并行配置间的检查点转换，与HuggingFace Transformers无缝集成
-          </p>
-          <div class="feature-highlight">
-            灵活的模型互操作
-          </div>
+            <i class="fas fa-exchange-alt feature-icon"></i>
+            <h3 class="feature-title">检查点转换</h3>
+            <p class="feature-description">
+                支持不同并行配置间的检查点转换，与HuggingFace Transformers无缝集成
+            </p>
+            <div class="feature-highlight">
+                灵活的模型互操作
+            </div>
         </div>
-        
+
         <div class="bottom-section">
-          <h3 class="bottom-title">技术栈支持</h3>
-          <div class="tech-stack">
-            <div class="tech-item">
-              <i class="fab fa-python tech-icon"></i>
-              <span class="tech-name">PyTorch</span>
+            <h3 class="bottom-title">技术栈支持</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <i class="fab fa-python tech-icon"></i>
+                    <span class="tech-name">PyTorch</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-microchip tech-icon"></i>
+                    <span class="tech-name">CUDA</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-network-wired tech-icon"></i>
+                    <span class="tech-name">NCCL</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-server tech-icon"></i>
+                    <span class="tech-name">NVIDIA Apex</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cog tech-icon"></i>
+                    <span class="tech-name">Transformers</span>
+                </div>
             </div>
-            <div class="tech-item">
-              <i class="fas fa-microchip tech-icon"></i>
-              <span class="tech-name">CUDA</span>
-            </div>
-            <div class="tech-item">
-              <i class="fas fa-network-wired tech-icon"></i>
-              <span class="tech-name">NCCL</span>
-            </div>
-            <div class="tech-item">
-              <i class="fas fa-server tech-icon"></i>
-              <span class="tech-name">NVIDIA Apex</span>
-            </div>
-            <div class="tech-item">
-              <i class="fas fa-cog tech-icon"></i>
-              <span class="tech-name">Transformers</span>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

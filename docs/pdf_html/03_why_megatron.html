@@ -1,204 +1,220 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #e74c3c 0%, #8e44ad 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 40px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 3rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 30px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .main-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        height: 100%;
-      }
-      .challenge-section {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 25px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .section-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-      .section-icon {
-        font-size: 2.5rem;
-        color: #e74c3c;
-        margin-right: 15px;
-      }
-      .section-title {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: white;
-      }
-      .challenge-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
-      .challenge-item {
-        background: rgba(231, 76, 60, 0.2);
-        border-left: 4px solid #e74c3c;
-        padding: 15px;
-        border-radius: 8px;
-      }
-      .challenge-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        font-size: 1.1rem;
-      }
-      .challenge-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.95rem;
-        line-height: 1.4;
-      }
-      .solution-item {
-        background: rgba(142, 68, 173, 0.2);
-        border-left: 4px solid #8e44ad;
-        padding: 15px;
-        border-radius: 8px;
-      }
-      .solution-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        font-size: 1.1rem;
-      }
-      .solution-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.95rem;
-        line-height: 1.4;
-      }
-      .stats-box {
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px;
-        padding: 15px;
-        margin-top: 15px;
-        text-align: center;
-      }
-      .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #f39c12;
-      }
-      .stat-label {
-        color: rgba(255,255,255,0.8);
-        font-size: 0.9rem;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #e74c3c 0%, #8e44ad 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: 100%;
+        }
+
+        .challenge-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            margin-right: 15px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .challenge-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .challenge-item {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .challenge-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .challenge-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .solution-item {
+            background: rgba(142, 68, 173, 0.2);
+            border-left: 4px solid #8e44ad;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .solution-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .solution-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .stats-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">为什么需要 Megatron-LM</h1>
-      
-      <div class="main-content">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">为什么需要 Megatron-LM</h1>
+
+    <div class="main-content">
         <div class="challenge-section">
-          <div class="section-header">
-            <i class="fas fa-exclamation-triangle section-icon"></i>
-            <h2 class="section-title">传统训练面临的挑战</h2>
-          </div>
-          
-          <div class="challenge-list">
-            <div class="challenge-item">
-              <div class="challenge-title">内存限制</div>
-              <div class="challenge-desc">
-                单个GPU内存无法容纳数十亿参数的大模型，即使是80GB的A100也难以训练1750亿参数的GPT-3
-              </div>
+            <div class="section-header">
+                <i class="fas fa-exclamation-triangle section-icon"></i>
+                <h2 class="section-title">传统训练面临的挑战</h2>
             </div>
-            
-            <div class="challenge-item">
-              <div class="challenge-title">计算效率低</div>
-              <div class="challenge-desc">
-                传统数据并行在大模型训练中通信开销巨大，GPU利用率低，训练时间过长
-              </div>
+
+            <div class="challenge-list">
+                <div class="challenge-item">
+                    <div class="challenge-title">内存限制</div>
+                    <div class="challenge-desc">
+                        单个GPU内存无法容纳数十亿参数的大模型，即使是80GB的A100也难以训练1750亿参数的GPT-3
+                    </div>
+                </div>
+
+                <div class="challenge-item">
+                    <div class="challenge-title">计算效率低</div>
+                    <div class="challenge-desc">
+                        传统数据并行在大模型训练中通信开销巨大，GPU利用率低，训练时间过长
+                    </div>
+                </div>
+
+                <div class="challenge-item">
+                    <div class="challenge-title">扩展性差</div>
+                    <div class="challenge-desc">
+                        简单的数据并行难以有效利用数百个GPU，存在严重的扩展瓶颈
+                    </div>
+                </div>
+
+                <div class="challenge-item">
+                    <div class="challenge-title">资源浪费</div>
+                    <div class="challenge-desc">
+                        梯度同步和参数更新的通信成本随GPU数量线性增长，造成大量计算资源浪费
+                    </div>
+                </div>
             </div>
-            
-            <div class="challenge-item">
-              <div class="challenge-title">扩展性差</div>
-              <div class="challenge-desc">
-                简单的数据并行难以有效利用数百个GPU，存在严重的扩展瓶颈
-              </div>
+
+            <div class="stats-box">
+                <div class="stat-number">175B</div>
+                <div class="stat-label">GPT-3参数量需要350GB内存</div>
             </div>
-            
-            <div class="challenge-item">
-              <div class="challenge-title">资源浪费</div>
-              <div class="challenge-desc">
-                梯度同步和参数更新的通信成本随GPU数量线性增长，造成大量计算资源浪费
-              </div>
-            </div>
-          </div>
-          
-          <div class="stats-box">
-            <div class="stat-number">175B</div>
-            <div class="stat-label">GPT-3参数量需要350GB内存</div>
-          </div>
         </div>
-        
+
         <div class="challenge-section">
-          <div class="section-header">
-            <i class="fas fa-lightbulb section-icon" style="color: #8e44ad;"></i>
-            <h2 class="section-title">Megatron-LM 的解决方案</h2>
-          </div>
-          
-          <div class="challenge-list">
-            <div class="solution-item">
-              <div class="solution-title">张量并行</div>
-              <div class="solution-desc">
-                将模型参数按张量维度分割到多个GPU，实现模型级别的并行计算，突破单GPU内存限制
-              </div>
+            <div class="section-header">
+                <i class="fas fa-lightbulb section-icon" style="color: #8e44ad;"></i>
+                <h2 class="section-title">Megatron-LM 的解决方案</h2>
             </div>
-            
-            <div class="solution-item">
-              <div class="solution-title">流水线并行</div>
-              <div class="solution-desc">
-                将模型层按序分配到不同GPU，通过流水线调度减少空闲时间，提高整体吞吐量
-              </div>
+
+            <div class="challenge-list">
+                <div class="solution-item">
+                    <div class="solution-title">张量并行</div>
+                    <div class="solution-desc">
+                        将模型参数按张量维度分割到多个GPU，实现模型级别的并行计算，突破单GPU内存限制
+                    </div>
+                </div>
+
+                <div class="solution-item">
+                    <div class="solution-title">流水线并行</div>
+                    <div class="solution-desc">
+                        将模型层按序分配到不同GPU，通过流水线调度减少空闲时间，提高整体吞吐量
+                    </div>
+                </div>
+
+                <div class="solution-item">
+                    <div class="solution-title">混合并行</div>
+                    <div class="solution-desc">
+                        组合使用多种并行策略，在不同维度上分割计算任务，实现最优的资源利用
+                    </div>
+                </div>
+
+                <div class="solution-item">
+                    <div class="solution-title">通信优化</div>
+                    <div class="solution-desc">
+                        通过精心设计的通信模式和融合操作，最小化跨GPU通信开销，提升训练效率
+                    </div>
+                </div>
             </div>
-            
-            <div class="solution-item">
-              <div class="solution-title">混合并行</div>
-              <div class="solution-desc">
-                组合使用多种并行策略，在不同维度上分割计算任务，实现最优的资源利用
-              </div>
+
+            <div class="stats-box">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">支持GPU数量扩展</div>
             </div>
-            
-            <div class="solution-item">
-              <div class="solution-title">通信优化</div>
-              <div class="solution-desc">
-                通过精心设计的通信模式和融合操作，最小化跨GPU通信开销，提升训练效率
-              </div>
-            </div>
-          </div>
-          
-          <div class="stats-box">
-            <div class="stat-number">1000+</div>
-            <div class="stat-label">支持GPU数量扩展</div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

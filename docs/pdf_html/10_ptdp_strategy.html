@@ -1,324 +1,350 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 35px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .strategy-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-        height: 100%;
-      }
-      .strategy-card {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-      .card-icon {
-        font-size: 2rem;
-        color: #3498db;
-        margin-right: 12px;
-      }
-      .card-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: white;
-      }
-      .combination-matrix {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        margin-bottom: 15px;
-      }
-      .matrix-header {
-        background: rgba(52, 152, 219, 0.3);
-        padding: 8px;
-        text-align: center;
-        font-weight: bold;
-        color: white;
-        font-size: 0.8rem;
-        border-radius: 5px;
-      }
-      .matrix-cell {
-        background: rgba(255,255,255,0.05);
-        padding: 8px;
-        text-align: center;
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.9);
-        border-radius: 5px;
-      }
-      .optimal-config {
-        background: rgba(46, 204, 113, 0.2);
-        border-left: 4px solid #2ecc71;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 10px 0;
-      }
-      .config-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        font-size: 1rem;
-      }
-      .config-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-      .scaling-examples {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .example-item {
-        background: rgba(44, 62, 80, 0.3);
-        border-left: 4px solid #34495e;
-        padding: 12px;
-        border-radius: 8px;
-      }
-      .example-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .example-model {
-        font-weight: bold;
-        color: white;
-        font-size: 1rem;
-      }
-      .example-gpus {
-        background: #e74c3c;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-      }
-      .example-config {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.85rem;
-        line-height: 1.3;
-      }
-      .performance-metrics {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-      }
-      .metric-box {
-        background: rgba(255,255,255,0.05);
-        padding: 10px;
-        border-radius: 8px;
-        text-align: center;
-      }
-      .metric-value {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #f39c12;
-      }
-      .metric-label {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.7);
-      }
-      .best-practices {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .practice-item {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 10px;
-        border-radius: 8px;
-      }
-      .practice-icon {
-        color: #2ecc71;
-        margin-right: 10px;
-        font-size: 1rem;
-      }
-      .practice-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .strategy-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #3498db;
+            margin-right: 12px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .combination-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .matrix-header {
+            background: rgba(52, 152, 219, 0.3);
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+            border-radius: 5px;
+        }
+
+        .matrix-cell {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+        }
+
+        .optimal-config {
+            background: rgba(46, 204, 113, 0.2);
+            border-left: 4px solid #2ecc71;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .config-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .config-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .scaling-examples {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .example-item {
+            background: rgba(44, 62, 80, 0.3);
+            border-left: 4px solid #34495e;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .example-model {
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .example-gpus {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .example-config {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .best-practices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .practice-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .practice-icon {
+            color: #2ecc71;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+
+        .practice-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">PTD-P 组合策略</h1>
-      
-      <div class="strategy-grid">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">PTD-P 组合策略</h1>
+
+    <div class="strategy-grid">
         <div class="strategy-card">
-          <div class="card-header">
-            <i class="fas fa-layer-group card-icon"></i>
-            <h2 class="card-title">并行维度组合</h2>
-          </div>
-          
-          <div class="combination-matrix">
-            <div class="matrix-header">维度</div>
-            <div class="matrix-header">Pipeline</div>
-            <div class="matrix-header">Tensor</div>
-            <div class="matrix-header">Data</div>
-            
-            <div class="matrix-cell">分割对象</div>
-            <div class="matrix-cell">模型层</div>
-            <div class="matrix-cell">张量</div>
-            <div class="matrix-cell">数据</div>
-            
-            <div class="matrix-cell">内存节省</div>
-            <div class="matrix-cell">高</div>
-            <div class="matrix-cell">中</div>
-            <div class="matrix-cell">无</div>
-            
-            <div class="matrix-cell">通信频率</div>
-            <div class="matrix-cell">低</div>
-            <div class="matrix-cell">高</div>
-            <div class="matrix-cell">中</div>
-            
-            <div class="matrix-cell">扩展性</div>
-            <div class="matrix-cell">层数限制</div>
-            <div class="matrix-cell">带宽限制</div>
-            <div class="matrix-cell">参数限制</div>
-          </div>
-          
-          <div class="optimal-config">
-            <div class="config-title">最优配置原则</div>
-            <div class="config-desc">
-              • 张量并行度 ≤ 单节点GPU数（减少跨节点通信）<br/>
-              • 流水线并行度 ≈ √节点数（最大化内存节省）<br/>
-              • 数据并行度 = 总GPU数/(TP*PP)（提高吞吐量）
+            <div class="card-header">
+                <i class="fas fa-layer-group card-icon"></i>
+                <h2 class="card-title">并行维度组合</h2>
             </div>
-          </div>
-          
-          <div class="optimal-config">
-            <div class="config-title">计算公式</div>
-            <div class="config-desc">
-              总GPU数 = TP × PP × DP<br/>
-              其中 SP 通常与 TP 相同，无需额外GPU
+
+            <div class="combination-matrix">
+                <div class="matrix-header">维度</div>
+                <div class="matrix-header">Pipeline</div>
+                <div class="matrix-header">Tensor</div>
+                <div class="matrix-header">Data</div>
+
+                <div class="matrix-cell">分割对象</div>
+                <div class="matrix-cell">模型层</div>
+                <div class="matrix-cell">张量</div>
+                <div class="matrix-cell">数据</div>
+
+                <div class="matrix-cell">内存节省</div>
+                <div class="matrix-cell">高</div>
+                <div class="matrix-cell">中</div>
+                <div class="matrix-cell">无</div>
+
+                <div class="matrix-cell">通信频率</div>
+                <div class="matrix-cell">低</div>
+                <div class="matrix-cell">高</div>
+                <div class="matrix-cell">中</div>
+
+                <div class="matrix-cell">扩展性</div>
+                <div class="matrix-cell">层数限制</div>
+                <div class="matrix-cell">带宽限制</div>
+                <div class="matrix-cell">参数限制</div>
             </div>
-          </div>
-          
-          <div class="performance-metrics">
-            <div class="metric-box">
-              <div class="metric-value">90%+</div>
-              <div class="metric-label">GPU利用率</div>
+
+            <div class="optimal-config">
+                <div class="config-title">最优配置原则</div>
+                <div class="config-desc">
+                    • 张量并行度 ≤ 单节点GPU数（减少跨节点通信）<br/>
+                    • 流水线并行度 ≈ √节点数（最大化内存节省）<br/>
+                    • 数据并行度 = 总GPU数/(TP*PP)（提高吞吐量）
+                </div>
             </div>
-            <div class="metric-box">
-              <div class="metric-value">线性</div>
-              <div class="metric-label">扩展性</div>
+
+            <div class="optimal-config">
+                <div class="config-title">计算公式</div>
+                <div class="config-desc">
+                    总GPU数 = TP × PP × DP<br/>
+                    其中 SP 通常与 TP 相同，无需额外GPU
+                </div>
             </div>
-          </div>
+
+            <div class="performance-metrics">
+                <div class="metric-box">
+                    <div class="metric-value">90%+</div>
+                    <div class="metric-label">GPU利用率</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">线性</div>
+                    <div class="metric-label">扩展性</div>
+                </div>
+            </div>
         </div>
-        
+
         <div class="strategy-card">
-          <div class="card-header">
-            <i class="fas fa-chart-line card-icon"></i>
-            <h2 class="card-title">实际配置案例</h2>
-          </div>
-          
-          <div class="scaling-examples">
-            <div class="example-item">
-              <div class="example-header">
-                <span class="example-model">GPT-3 (175B)</span>
-                <span class="example-gpus">1024 GPUs</span>
-              </div>
-              <div class="example-config">
-                TP=8, PP=16, DP=8<br/>
-                每节点8个GPU，128个节点
-              </div>
+            <div class="card-header">
+                <i class="fas fa-chart-line card-icon"></i>
+                <h2 class="card-title">实际配置案例</h2>
             </div>
-            
-            <div class="example-item">
-              <div class="example-header">
-                <span class="example-model">PaLM (540B)</span>
-                <span class="example-gpus">6144 GPUs</span>
-              </div>
-              <div class="example-config">
-                TP=8, PP=12, DP=64<br/>
-                每节点8个GPU，768个节点
-              </div>
+
+            <div class="scaling-examples">
+                <div class="example-item">
+                    <div class="example-header">
+                        <span class="example-model">GPT-3 (175B)</span>
+                        <span class="example-gpus">1024 GPUs</span>
+                    </div>
+                    <div class="example-config">
+                        TP=8, PP=16, DP=8<br/>
+                        每节点8个GPU，128个节点
+                    </div>
+                </div>
+
+                <div class="example-item">
+                    <div class="example-header">
+                        <span class="example-model">PaLM (540B)</span>
+                        <span class="example-gpus">6144 GPUs</span>
+                    </div>
+                    <div class="example-config">
+                        TP=8, PP=12, DP=64<br/>
+                        每节点8个GPU，768个节点
+                    </div>
+                </div>
+
+                <div class="example-item">
+                    <div class="example-header">
+                        <span class="example-model">MT-NLG (530B)</span>
+                        <span class="example-gpus">4480 GPUs</span>
+                    </div>
+                    <div class="example-config">
+                        TP=8, PP=35, DP=16<br/>
+                        每节点8个GPU，560个节点
+                    </div>
+                </div>
+
+                <div class="example-item">
+                    <div class="example-header">
+                        <span class="example-model">BLOOM (176B)</span>
+                        <span class="example-gpus">384 GPUs</span>
+                    </div>
+                    <div class="example-config">
+                        TP=4, PP=12, DP=8<br/>
+                        每节点8个GPU，48个节点
+                    </div>
+                </div>
             </div>
-            
-            <div class="example-item">
-              <div class="example-header">
-                <span class="example-model">MT-NLG (530B)</span>
-                <span class="example-gpus">4480 GPUs</span>
-              </div>
-              <div class="example-config">
-                TP=8, PP=35, DP=16<br/>
-                每节点8个GPU，560个节点
-              </div>
+
+            <div class="best-practices">
+                <div class="practice-item">
+                    <i class="fas fa-check practice-icon"></i>
+                    <div class="practice-text">
+                        <strong>节点内张量并行：</strong>利用高带宽NVLink减少通信延迟
+                    </div>
+                </div>
+                <div class="practice-item">
+                    <i class="fas fa-check practice-icon"></i>
+                    <div class="practice-text">
+                        <strong>节点间流水线并行：</strong>减少跨节点通信频率
+                    </div>
+                </div>
+                <div class="practice-item">
+                    <i class="fas fa-check practice-icon"></i>
+                    <div class="practice-text">
+                        <strong>数据并行补充：</strong>充分利用剩余计算资源
+                    </div>
+                </div>
+                <div class="practice-item">
+                    <i class="fas fa-check practice-icon"></i>
+                    <div class="practice-text">
+                        <strong>序列并行优化：</strong>在长序列场景下进一步节省内存
+                    </div>
+                </div>
             </div>
-            
-            <div class="example-item">
-              <div class="example-header">
-                <span class="example-model">BLOOM (176B)</span>
-                <span class="example-gpus">384 GPUs</span>
-              </div>
-              <div class="example-config">
-                TP=4, PP=12, DP=8<br/>
-                每节点8个GPU，48个节点
-              </div>
-            </div>
-          </div>
-          
-          <div class="best-practices">
-            <div class="practice-item">
-              <i class="fas fa-check practice-icon"></i>
-              <div class="practice-text">
-                <strong>节点内张量并行：</strong>利用高带宽NVLink减少通信延迟
-              </div>
-            </div>
-            <div class="practice-item">
-              <i class="fas fa-check practice-icon"></i>
-              <div class="practice-text">
-                <strong>节点间流水线并行：</strong>减少跨节点通信频率
-              </div>
-            </div>
-            <div class="practice-item">
-              <i class="fas fa-check practice-icon"></i>
-              <div class="practice-text">
-                <strong>数据并行补充：</strong>充分利用剩余计算资源
-              </div>
-            </div>
-            <div class="practice-item">
-              <i class="fas fa-check practice-icon"></i>
-              <div class="practice-text">
-                <strong>序列并行优化：</strong>在长序列场景下进一步节省内存
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>

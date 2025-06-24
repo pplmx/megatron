@@ -1,420 +1,453 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 30px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .main-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        height: 100%;
-      }
-      .content-section {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 18px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .section-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      .section-icon {
-        font-size: 1.8rem;
-        color: #f39c12;
-        margin-right: 10px;
-      }
-      .section-title {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: white;
-      }
-      /* 新增：变量说明框样式 */
-      .variable-legend {
-        background: rgba(0,0,0,0.2);
-        border-left: 4px solid #f39c12; /* 使用图标的橙色作为强调 */
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-      }
-      .legend-title {
-        display: flex;
-        align-items: center;
-        font-weight: bold;
-        color: white;
-        font-size: 1rem;
-        margin-bottom: 8px;
-      }
-      .legend-icon {
-        font-size: 1.1rem;
-        color: #f39c12;
-        margin-right: 8px;
-      }
-      .legend-list {
-        padding-left: 5px;
-        margin: 0;
-        list-style-type: none;
-      }
-      .legend-list li {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.85rem;
-        line-height: 1.5;
-      }
-      .legend-list b {
-        color: #00ff88; /* 与代码/复杂度颜色一致 */
-        font-family: 'Courier New', monospace;
-        display: inline-block;
-        width: 80px; /* 对齐文本 */
-      }
-      .communication-patterns {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .pattern-item {
-        background: rgba(41, 128, 185, 0.2);
-        border-left: 4px solid #2980b9;
-        padding: 12px;
-        border-radius: 8px;
-      }
-      .pattern-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .pattern-icon {
-        font-size: 1.2rem;
-        color: #e74c3c;
-        margin-right: 8px;
-      }
-      .pattern-name {
-        font-weight: bold;
-        color: white;
-        font-size: 1rem;
-      }
-      .pattern-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.85rem;
-        line-height: 1.3;
-        margin-bottom: 8px;
-      }
-      .pattern-complexity {
-        background: rgba(0,0,0,0.2);
-        padding: 6px;
-        border-radius: 4px;
-        font-family: 'Courier New', monospace;
-        font-size: 0.75rem;
-        color: #00ff88;
-      }
-      .optimization-strategies {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .strategy-item {
-        background: rgba(52, 152, 219, 0.2);
-        border-left: 4px solid #3498db;
-        padding: 10px;
-        border-radius: 6px;
-      }
-      .strategy-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 6px;
-        font-size: 0.9rem;
-      }
-      .strategy-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.8rem;
-        line-height: 1.3;
-      }
-      .performance-comparison {
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 12px;
-        margin: 10px 0;
-      }
-      .comparison-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        text-align: center;
-        font-size: 0.9rem;
-      }
-      .comparison-table {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 5px;
-      }
-      .table-header {
-        background: rgba(52, 152, 219, 0.3);
-        padding: 6px;
-        text-align: center;
-        font-weight: bold;
-        color: white;
-        font-size: 0.75rem;
-        border-radius: 4px;
-      }
-      .table-cell {
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        text-align: center;
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.9);
-        border-radius: 4px;
-      }
-      .bottleneck-analysis {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .bottleneck-item {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 8px;
-        border-radius: 6px;
-      }
-      .bottleneck-icon {
-        color: #e74c3c;
-        margin-right: 8px;
-        font-size: 0.9rem;
-      }
-      .bottleneck-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.8rem;
-        line-height: 1.3;
-      }
-      .code-snippet {
-        background: rgba(0,0,0,0.3);
-        border-radius: 6px;
-        padding: 8px;
-        margin: 8px 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.7rem;
-        color: #00ff88;
-        border-left: 3px solid #00ff88;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-icon {
+            font-size: 1.8rem;
+            color: #f39c12;
+            margin-right: 10px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* 新增：变量说明框样式 */
+        .variable-legend {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #f39c12; /* 使用图标的橙色作为强调 */
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .legend-title {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .legend-icon {
+            font-size: 1.1rem;
+            color: #f39c12;
+            margin-right: 8px;
+        }
+
+        .legend-list {
+            padding-left: 5px;
+            margin: 0;
+            list-style-type: none;
+        }
+
+        .legend-list li {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .legend-list b {
+            color: #00ff88; /* 与代码/复杂度颜色一致 */
+            font-family: 'Courier New', monospace;
+            display: inline-block;
+            width: 80px; /* 对齐文本 */
+        }
+
+        .communication-patterns {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pattern-item {
+            background: rgba(41, 128, 185, 0.2);
+            border-left: 4px solid #2980b9;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pattern-icon {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            margin-right: 8px;
+        }
+
+        .pattern-name {
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .pattern-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .pattern-complexity {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #00ff88;
+        }
+
+        .optimization-strategies {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .strategy-item {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .strategy-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .strategy-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .performance-comparison {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .comparison-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+        }
+
+        .table-header {
+            background: rgba(52, 152, 219, 0.3);
+            padding: 6px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .table-cell {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+        }
+
+        .bottleneck-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bottleneck-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .bottleneck-icon {
+            color: #e74c3c;
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .bottleneck-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .code-snippet {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: #00ff88;
+            border-left: 3px solid #00ff88;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">通信模式分析</h1>
-      
-      <div class="main-content">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">通信模式分析</h1>
+
+    <div class="main-content">
         <div class="content-section">
-          <div class="section-header">
-            <i class="fas fa-exchange-alt section-icon"></i>
-            <h2 class="section-title">核心通信操作</h2>
-          </div>
-          
-          <!-- 新增的变量说明模块 -->
-          <div class="variable-legend">
-            <div class="legend-title">
-              <i class="fas fa-book-open legend-icon"></i>
-              <span>公式变量说明</span>
+            <div class="section-header">
+                <i class="fas fa-exchange-alt section-icon"></i>
+                <h2 class="section-title">核心通信操作</h2>
             </div>
-            <ul class="legend-list">
-              <li><b>P</b>: 参与通信的进程总数 (如GPU数量)。</li>
-              <li><b>M</b>: 每个进程的基础数据块大小 (字节)。</li>
-              <li><b>α (alpha)</b>: 网络延迟 (Latency)，一次通信的固定开销。</li>
-              <li><b>β (beta)</b>: 每字节传输时间 (1 / 带宽)。</li>
-            </ul>
-          </div>
-          <!-- 变量说明模块结束 -->
 
-        <div class="communication-patterns">
-          <div class="pattern-item">
-            <div class="pattern-header">
-              <i class="fas fa-expand-arrows-alt pattern-icon"></i>
-              <div class="pattern-name">All-Gather</div>
+            <!-- 新增的变量说明模块 -->
+            <div class="variable-legend">
+                <div class="legend-title">
+                    <i class="fas fa-book-open legend-icon"></i>
+                    <span>公式变量说明</span>
+                </div>
+                <ul class="legend-list">
+                    <li><b>P</b>: 参与通信的进程总数 (如GPU数量)。</li>
+                    <li><b>M</b>: 每个进程的基础数据块大小 (字节)。</li>
+                    <li><b>α (alpha)</b>: 网络延迟 (Latency)，一次通信的固定开销。</li>
+                    <li><b>β (beta)</b>: 每字节传输时间 (1 / 带宽)。</li>
+                </ul>
             </div>
-            <div class="pattern-desc">
-              每个进程收集所有其他进程的数据，最终每个进程都拥有完整的、拼接后的数据 (大小变为 P*M)。
-            </div>
-            <div class="pattern-complexity">
-              <!-- 使用递归倍增算法模型 -->
-              <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
-              <b>每进程通信量:</b> (P-1)M
-            </div>
-          </div>
-          
-          <div class="pattern-item">
-            <div class="pattern-header">
-              <i class="fas fa-compress-arrows-alt pattern-icon"></i>
-              <div class="pattern-name">All-Reduce</div>
-            </div>
-            <div class="pattern-desc">
-              对所有进程的数据进行归约操作（如求和），并将最终结果分发给所有进程。
-            </div>
-            <div class="pattern-complexity">
-              <!-- 使用Ring-Allreduce或类似模型 -->
-              <b>时间复杂度:</b> 2log₂(P)α + 2(P-1)/P * Mβ<br/>
-              <b>每进程通信量:</b> ≈ 2(P-1)/P * M
-            </div>
-          </div>
-          
-          <div class="pattern-item">
-            <div class="pattern-header">
-              <i class="fas fa-share-alt pattern-icon"></i>
-              <div class="pattern-name">Reduce-Scatter</div>
-            </div>
-            <div class="pattern-desc">
-              对所有进程的数据进行归约，然后将结果的不同分块散发给对应的进程 (每个进程获得大小为M的结果)。
-            </div>
-            <div class="pattern-complexity">
-              <!-- 使用递归减半算法模型 -->
-              <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
-              <b>每进程通信量:</b> (P-1)M
-            </div>
-          </div>
-        </div>
+            <!-- 变量说明模块结束 -->
 
-        <div class="code-snippet">
-        # NCCL通信原语示例<br/>
-        # All-Gather: 收集分布式张量<br/>
-        gathered_tensor = all_gather(local_tensor)<br/>
-        <br/>
-        # All-Reduce: 归约分布式梯度<br/>
-        reduced_grad = all_reduce(local_grad, op=SUM)<br/>
-        <br/>
-        # Reduce-Scatter: 分散归约结果<br/>
-        scattered_result = reduce_scatter(input_tensor, op=SUM)
-        </div>
+            <div class="communication-patterns">
+                <div class="pattern-item">
+                    <div class="pattern-header">
+                        <i class="fas fa-expand-arrows-alt pattern-icon"></i>
+                        <div class="pattern-name">All-Gather</div>
+                    </div>
+                    <div class="pattern-desc">
+                        每个进程收集所有其他进程的数据，最终每个进程都拥有完整的、拼接后的数据 (大小变为 P*M)。
+                    </div>
+                    <div class="pattern-complexity">
+                        <!-- 使用递归倍增算法模型 -->
+                        <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
+                        <b>每进程通信量:</b> (P-1)M
+                    </div>
+                </div>
 
-        <div class="performance-comparison">
-          <div class="comparison-title">通信开销对比 (基于高效算法)</div>
-          <div class="comparison-table">
-            <div class="table-header">操作</div>
-            <div class="table-header">带宽影响 (每进程总通信量)</div>
-            <div class="table-header">延迟影响 (通信启动次数)</div>
-            
-            <div class="table-cell">All-Gather</div>
-            <div class="table-cell">(P-1)M</div>
-            <div class="table-cell">log₂(P)</div>
-            
-            <div class="table-cell">All-Reduce</div>
-            <div class="table-cell">≈ 2(P-1)M / P</div>
-            <div class="table-cell">2log₂(P)</div>
-            
-            <div class="table-cell">Reduce-Scatter</div>
-            <div class="table-cell">(P-1)M</div>
-            <div class="table-cell">log₂(P)</div>
-          </div>
-        </div>
-      </div> <!-- 左侧栏结束 -->
-        
+                <div class="pattern-item">
+                    <div class="pattern-header">
+                        <i class="fas fa-compress-arrows-alt pattern-icon"></i>
+                        <div class="pattern-name">All-Reduce</div>
+                    </div>
+                    <div class="pattern-desc">
+                        对所有进程的数据进行归约操作（如求和），并将最终结果分发给所有进程。
+                    </div>
+                    <div class="pattern-complexity">
+                        <!-- 使用Ring-Allreduce或类似模型 -->
+                        <b>时间复杂度:</b> 2log₂(P)α + 2(P-1)/P * Mβ<br/>
+                        <b>每进程通信量:</b> ≈ 2(P-1)/P * M
+                    </div>
+                </div>
+
+                <div class="pattern-item">
+                    <div class="pattern-header">
+                        <i class="fas fa-share-alt pattern-icon"></i>
+                        <div class="pattern-name">Reduce-Scatter</div>
+                    </div>
+                    <div class="pattern-desc">
+                        对所有进程的数据进行归约，然后将结果的不同分块散发给对应的进程 (每个进程获得大小为M的结果)。
+                    </div>
+                    <div class="pattern-complexity">
+                        <!-- 使用递归减半算法模型 -->
+                        <b>时间复杂度:</b> log₂(P)α + (P-1)Mβ<br/>
+                        <b>每进程通信量:</b> (P-1)M
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-snippet">
+                # NCCL通信原语示例<br/>
+                # All-Gather: 收集分布式张量<br/>
+                gathered_tensor = all_gather(local_tensor)<br/>
+                <br/>
+                # All-Reduce: 归约分布式梯度<br/>
+                reduced_grad = all_reduce(local_grad, op=SUM)<br/>
+                <br/>
+                # Reduce-Scatter: 分散归约结果<br/>
+                scattered_result = reduce_scatter(input_tensor, op=SUM)
+            </div>
+
+            <div class="performance-comparison">
+                <div class="comparison-title">通信开销对比 (基于高效算法)</div>
+                <div class="comparison-table">
+                    <div class="table-header">操作</div>
+                    <div class="table-header">带宽影响 (每进程总通信量)</div>
+                    <div class="table-header">延迟影响 (通信启动次数)</div>
+
+                    <div class="table-cell">All-Gather</div>
+                    <div class="table-cell">(P-1)M</div>
+                    <div class="table-cell">log₂(P)</div>
+
+                    <div class="table-cell">All-Reduce</div>
+                    <div class="table-cell">≈ 2(P-1)M / P</div>
+                    <div class="table-cell">2log₂(P)</div>
+
+                    <div class="table-cell">Reduce-Scatter</div>
+                    <div class="table-cell">(P-1)M</div>
+                    <div class="table-cell">log₂(P)</div>
+                </div>
+            </div>
+        </div> <!-- 左侧栏结束 -->
+
         <div class="content-section"> <!-- 右侧栏开始 -->
-          <div class="section-header">
-            <i class="fas fa-tachometer-alt section-icon"></i>
-            <h2 class="section-title">性能优化策略</h2>
-          </div>
-          
-          <div class="optimization-strategies">
-            <div class="strategy-item">
-              <div class="strategy-title">通信计算重叠</div>
-              <div class="strategy-desc">
-                在计算过程中异步启动通信操作，隐藏通信延迟
-              </div>
+            <div class="section-header">
+                <i class="fas fa-tachometer-alt section-icon"></i>
+                <h2 class="section-title">性能优化策略</h2>
             </div>
-            
-            <div class="strategy-item">
-              <div class="strategy-title">梯度分桶</div>
-              <div class="strategy-desc">
-                将多个小梯度合并成大桶进行通信，减少通信次数
-              </div>
+
+            <div class="optimization-strategies">
+                <div class="strategy-item">
+                    <div class="strategy-title">通信计算重叠</div>
+                    <div class="strategy-desc">
+                        在计算过程中异步启动通信操作，隐藏通信延迟
+                    </div>
+                </div>
+
+                <div class="strategy-item">
+                    <div class="strategy-title">梯度分桶</div>
+                    <div class="strategy-desc">
+                        将多个小梯度合并成大桶进行通信，减少通信次数
+                    </div>
+                </div>
+
+                <div class="strategy-item">
+                    <div class="strategy-title">拓扑感知通信</div>
+                    <div class="strategy-desc">
+                        根据硬件拓扑优化通信路径，利用高带宽连接
+                    </div>
+                </div>
+
+                <div class="strategy-item">
+                    <div class="strategy-title">压缩技术</div>
+                    <div class="strategy-desc">
+                        使用FP16或量化技术减少通信数据量
+                    </div>
+                </div>
+
+                <div class="strategy-item">
+                    <div class="strategy-title">层次化通信</div>
+                    <div class="strategy-desc">
+                        节点内使用NVLink，节点间使用InfiniBand
+                    </div>
+                </div>
             </div>
-            
-            <div class="strategy-item">
-              <div class="strategy-title">拓扑感知通信</div>
-              <div class="strategy-desc">
-                根据硬件拓扑优化通信路径，利用高带宽连接
-              </div>
+
+            <div class="bottleneck-analysis">
+                <div class="bottleneck-item">
+                    <i class="fas fa-exclamation-triangle bottleneck-icon"></i>
+                    <div class="bottleneck-text">
+                        <strong>带宽瓶颈：</strong>跨节点通信带宽限制整体性能
+                    </div>
+                </div>
+                <div class="bottleneck-item">
+                    <i class="fas fa-clock bottleneck-icon"></i>
+                    <div class="bottleneck-text">
+                        <strong>延迟敏感：</strong>小张量通信受启动延迟影响严重
+                    </div>
+                </div>
+                <div class="bottleneck-item">
+                    <i class="fas fa-balance-scale bottleneck-icon"></i>
+                    <div class="bottleneck-text">
+                        <strong>负载不均：</strong>不同GPU的计算负载可能不平衡
+                    </div>
+                </div>
+                <div class="bottleneck-item">
+                    <i class="fas fa-memory bottleneck-icon"></i>
+                    <div class="bottleneck-text">
+                        <strong>内存带宽：</strong>GPU内存带宽限制数据传输速度
+                    </div>
+                </div>
             </div>
-            
-            <div class="strategy-item">
-              <div class="strategy-title">压缩技术</div>
-              <div class="strategy-desc">
-                使用FP16或量化技术减少通信数据量
-              </div>
+
+            <div class="code-snippet">
+                # 通信优化示例<br/>
+                # 异步通信<br/>
+                handle = all_reduce_async(tensor)<br/>
+                # 执行其他计算<br/>
+                compute_other_operations()<br/>
+                # 等待通信完成<br/>
+                wait(handle)<br/>
+                <br/>
+                # 梯度分桶<br/>
+                bucket = GradientBucket(bucket_size=25MB)<br/>
+                bucket.add_gradient(grad1)<br/>
+                bucket.add_gradient(grad2)<br/>
+                bucket.all_reduce()
             </div>
-            
-            <div class="strategy-item">
-              <div class="strategy-title">层次化通信</div>
-              <div class="strategy-desc">
-                节点内使用NVLink，节点间使用InfiniBand
-              </div>
-            </div>
-          </div>
-          
-          <div class="bottleneck-analysis">
-            <div class="bottleneck-item">
-              <i class="fas fa-exclamation-triangle bottleneck-icon"></i>
-              <div class="bottleneck-text">
-                <strong>带宽瓶颈：</strong>跨节点通信带宽限制整体性能
-              </div>
-            </div>
-            <div class="bottleneck-item">
-              <i class="fas fa-clock bottleneck-icon"></i>
-              <div class="bottleneck-text">
-                <strong>延迟敏感：</strong>小张量通信受启动延迟影响严重
-              </div>
-            </div>
-            <div class="bottleneck-item">
-              <i class="fas fa-balance-scale bottleneck-icon"></i>
-              <div class="bottleneck-text">
-                <strong>负载不均：</strong>不同GPU的计算负载可能不平衡
-              </div>
-            </div>
-            <div class="bottleneck-item">
-              <i class="fas fa-memory bottleneck-icon"></i>
-              <div class="bottleneck-text">
-                <strong>内存带宽：</strong>GPU内存带宽限制数据传输速度
-              </div>
-            </div>
-          </div>
-          
-          <div class="code-snippet">
-# 通信优化示例<br/>
-# 异步通信<br/>
-handle = all_reduce_async(tensor)<br/>
-# 执行其他计算<br/>
-compute_other_operations()<br/>
-# 等待通信完成<br/>
-wait(handle)<br/>
-<br/>
-# 梯度分桶<br/>
-bucket = GradientBucket(bucket_size=25MB)<br/>
-bucket.add_gradient(grad1)<br/>
-bucket.add_gradient(grad2)<br/>
-bucket.all_reduce()
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

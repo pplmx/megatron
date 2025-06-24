@@ -1,288 +1,310 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 35px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-        height: 100%;
-      }
-      .content-card {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-      .card-icon {
-        font-size: 2rem;
-        color: #3498db;
-        margin-right: 12px;
-      }
-      .card-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: white;
-      }
-      .schedule-comparison {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
-      .schedule-item {
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px;
-        padding: 15px;
-        border-left: 4px solid #3498db;
-      }
-      .schedule-name {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        font-size: 1.1rem;
-      }
-      .schedule-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-        line-height: 1.4;
-        margin-bottom: 10px;
-      }
-      .efficiency-bar {
-        width: 100%;
-        height: 8px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
-        overflow: hidden;
-      }
-      .efficiency-fill {
-        height: 100%;
-        background: #27ae60;
-        border-radius: 4px;
-      }
-      .efficiency-text {
-        font-size: 0.8rem;
-        color: #27ae60;
-        margin-top: 5px;
-        text-align: right;
-      }
-      .pipeline-stages {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .stage-item {
-        display: flex;
-        align-items: center;
-        background: rgba(243, 156, 18, 0.2);
-        padding: 12px;
-        border-radius: 8px;
-        border-left: 4px solid #f39c12;
-      }
-      .stage-number {
-        width: 25px;
-        height: 25px;
-        background: #f39c12;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 12px;
-        font-size: 0.9rem;
-      }
-      .stage-content {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-      .code-example {
-        background: rgba(0,0,0,0.3);
-        border-radius: 8px;
-        padding: 12px;
-        margin: 12px 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.8rem;
-        color: #00ff88;
-        border-left: 4px solid #00ff88;
-      }
-      .metrics-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-      }
-      .metric-box {
-        background: rgba(255,255,255,0.05);
-        padding: 10px;
-        border-radius: 8px;
-        text-align: center;
-      }
-      .metric-value {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #27ae60;
-      }
-      .metric-label {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.7);
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #3498db;
+            margin-right: 12px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .schedule-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .schedule-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .schedule-name {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .schedule-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .efficiency-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .efficiency-fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 4px;
+        }
+
+        .efficiency-text {
+            font-size: 0.8rem;
+            color: #27ae60;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .pipeline-stages {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stage-item {
+            display: flex;
+            align-items: center;
+            background: rgba(243, 156, 18, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .stage-number {
+            width: 25px;
+            height: 25px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        .stage-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-example {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #00ff88;
+            border-left: 4px solid #00ff88;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">流水线并行 (Pipeline Parallelism)</h1>
-      
-      <div class="content-layout">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">流水线并行 (Pipeline Parallelism)</h1>
+
+    <div class="content-layout">
         <div class="content-card">
-          <div class="card-header">
-            <i class="fas fa-layer-group card-icon"></i>
-            <h2 class="card-title">调度策略对比</h2>
-          </div>
-          
-          <div class="schedule-comparison">
-            <div class="schedule-item">
-              <div class="schedule-name">朴素流水线 (Naive PP)</div>
-              <div class="schedule-desc">
-                严格按层顺序执行，存在大量流水线气泡，GPU利用率低
-              </div>
-              <div class="efficiency-bar">
-                <div class="efficiency-fill" style="width: 25%;"></div>
-              </div>
-              <div class="efficiency-text">效率: 25%</div>
+            <div class="card-header">
+                <i class="fas fa-layer-group card-icon"></i>
+                <h2 class="card-title">调度策略对比</h2>
             </div>
-            
-            <div class="schedule-item">
-              <div class="schedule-name">1F1B 调度</div>
-              <div class="schedule-desc">
-                一个前向传播后立即执行一个反向传播，减少内存占用和流水线气泡
-              </div>
-              <div class="efficiency-bar">
-                <div class="efficiency-fill" style="width: 75%;"></div>
-              </div>
-              <div class="efficiency-text">效率: 75%</div>
+
+            <div class="schedule-comparison">
+                <div class="schedule-item">
+                    <div class="schedule-name">朴素流水线 (Naive PP)</div>
+                    <div class="schedule-desc">
+                        严格按层顺序执行，存在大量流水线气泡，GPU利用率低
+                    </div>
+                    <div class="efficiency-bar">
+                        <div class="efficiency-fill" style="width: 25%;"></div>
+                    </div>
+                    <div class="efficiency-text">效率: 25%</div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="schedule-name">1F1B 调度</div>
+                    <div class="schedule-desc">
+                        一个前向传播后立即执行一个反向传播，减少内存占用和流水线气泡
+                    </div>
+                    <div class="efficiency-bar">
+                        <div class="efficiency-fill" style="width: 75%;"></div>
+                    </div>
+                    <div class="efficiency-text">效率: 75%</div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="schedule-name">交错1F1B</div>
+                    <div class="schedule-desc">
+                        将每个设备的层进一步分割，实现更细粒度的流水线调度
+                    </div>
+                    <div class="efficiency-bar">
+                        <div class="efficiency-fill" style="width: 85%;"></div>
+                    </div>
+                    <div class="efficiency-text">效率: 85%</div>
+                </div>
             </div>
-            
-            <div class="schedule-item">
-              <div class="schedule-name">交错1F1B</div>
-              <div class="schedule-desc">
-                将每个设备的层进一步分割，实现更细粒度的流水线调度
-              </div>
-              <div class="efficiency-bar">
-                <div class="efficiency-fill" style="width: 85%;"></div>
-              </div>
-              <div class="efficiency-text">效率: 85%</div>
+
+            <div class="code-example">
+                # 1F1B调度伪代码<br/>
+                def pipeline_1f1b_schedule():<br/>
+                &nbsp;&nbsp;# 预热阶段<br/>
+                &nbsp;&nbsp;for i in range(pipeline_stages):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;forward_step(micro_batch[i])<br/>
+                &nbsp;&nbsp;# 稳定阶段<br/>
+                &nbsp;&nbsp;for i in range(remaining_batches):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;backward_step()<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;forward_step(micro_batch[i])<br/>
+                &nbsp;&nbsp;# 清空阶段<br/>
+                &nbsp;&nbsp;for i in range(pipeline_stages):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;backward_step()
             </div>
-          </div>
-          
-          <div class="code-example">
-# 1F1B调度伪代码<br/>
-def pipeline_1f1b_schedule():<br/>
-&nbsp;&nbsp;# 预热阶段<br/>
-&nbsp;&nbsp;for i in range(pipeline_stages):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;forward_step(micro_batch[i])<br/>
-&nbsp;&nbsp;# 稳定阶段<br/>
-&nbsp;&nbsp;for i in range(remaining_batches):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;backward_step()<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;forward_step(micro_batch[i])<br/>
-&nbsp;&nbsp;# 清空阶段<br/>
-&nbsp;&nbsp;for i in range(pipeline_stages):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;backward_step()
-          </div>
         </div>
-        
+
         <div class="content-card">
-          <div class="card-header">
-            <i class="fas fa-cogs card-icon"></i>
-            <h2 class="card-title">实现细节</h2>
-          </div>
-          
-          <div class="pipeline-stages">
-            <div class="stage-item">
-              <div class="stage-number">1</div>
-              <div class="stage-content">
-                <strong>层分割：</strong>将Transformer层均匀分配到各个流水线阶段，每个GPU负责连续的几层
-              </div>
+            <div class="card-header">
+                <i class="fas fa-cogs card-icon"></i>
+                <h2 class="card-title">实现细节</h2>
             </div>
-            
-            <div class="stage-item">
-              <div class="stage-number">2</div>
-              <div class="stage-content">
-                <strong>微批次处理：</strong>将全局批次分割为多个微批次，在流水线中依次处理
-              </div>
+
+            <div class="pipeline-stages">
+                <div class="stage-item">
+                    <div class="stage-number">1</div>
+                    <div class="stage-content">
+                        <strong>层分割：</strong>将Transformer层均匀分配到各个流水线阶段，每个GPU负责连续的几层
+                    </div>
+                </div>
+
+                <div class="stage-item">
+                    <div class="stage-number">2</div>
+                    <div class="stage-content">
+                        <strong>微批次处理：</strong>将全局批次分割为多个微批次，在流水线中依次处理
+                    </div>
+                </div>
+
+                <div class="stage-item">
+                    <div class="stage-number">3</div>
+                    <div class="stage-content">
+                        <strong>激活传递：</strong>只需传递层间激活值，通信量相对较小
+                    </div>
+                </div>
+
+                <div class="stage-item">
+                    <div class="stage-number">4</div>
+                    <div class="stage-content">
+                        <strong>梯度累积：</strong>在微批次间累积梯度，最后统一更新参数
+                    </div>
+                </div>
+
+                <div class="stage-item">
+                    <div class="stage-number">5</div>
+                    <div class="stage-content">
+                        <strong>内存管理：</strong>及时释放不需要的激活值，保持较低的内存占用
+                    </div>
+                </div>
             </div>
-            
-            <div class="stage-item">
-              <div class="stage-number">3</div>
-              <div class="stage-content">
-                <strong>激活传递：</strong>只需传递层间激活值，通信量相对较小
-              </div>
+
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-value">1/N</div>
+                    <div class="metric-label">内存占用比例</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">O(1)</div>
+                    <div class="metric-label">通信复杂度</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">层数</div>
+                    <div class="metric-label">分割粒度</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">85%+</div>
+                    <div class="metric-label">GPU利用率</div>
+                </div>
             </div>
-            
-            <div class="stage-item">
-              <div class="stage-number">4</div>
-              <div class="stage-content">
-                <strong>梯度累积：</strong>在微批次间累积梯度，最后统一更新参数
-              </div>
-            </div>
-            
-            <div class="stage-item">
-              <div class="stage-number">5</div>
-              <div class="stage-content">
-                <strong>内存管理：</strong>及时释放不需要的激活值，保持较低的内存占用
-              </div>
-            </div>
-          </div>
-          
-          <div class="metrics-grid">
-            <div class="metric-box">
-              <div class="metric-value">1/N</div>
-              <div class="metric-label">内存占用比例</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">O(1)</div>
-              <div class="metric-label">通信复杂度</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">层数</div>
-              <div class="metric-label">分割粒度</div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-value">85%+</div>
-              <div class="metric-label">GPU利用率</div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

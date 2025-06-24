@@ -1,426 +1,460 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 25px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.3rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 18px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        height: 100%;
-      }
-      .content-panel {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 16px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .panel-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .panel-icon {
-        font-size: 1.6rem;
-        color: #8e44ad;
-        margin-right: 8px;
-      }
-      .panel-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-      }
-      .moe-concept {
-        background: rgba(230, 126, 34, 0.2);
-        border-left: 4px solid #e67e22;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 10px;
-      }
-      .concept-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.8rem;
-        line-height: 1.3;
-      }
-      .moe-components {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .component-item {
-        background: rgba(255,255,255,0.05);
-        border-radius: 6px;
-        padding: 8px;
-      }
-      .component-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 4px;
-      }
-      .component-icon {
-        font-size: 1rem;
-        color: #e74c3c;
-        margin-right: 6px;
-      }
-      .component-name {
-        font-weight: bold;
-        color: white;
-        font-size: 0.8rem;
-      }
-      .component-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .code-block {
-        background: rgba(0,0,0,0.4);
-        border-radius: 6px;
-        padding: 10px;
-        margin: 8px 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.65rem;
-        color: #00ff88;
-        border-left: 3px solid #00ff88;
-        overflow-x: auto;
-        line-height: 1.2;
-      }
-      .routing-strategy {
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 10px;
-        margin: 8px 0;
-      }
-      .strategy-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 6px;
-        font-size: 0.8rem;
-        text-align: center;
-      }
-      .strategy-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .strategy-step {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .step-number {
-        width: 16px;
-        height: 16px;
-        background: #8e44ad;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 6px;
-        font-size: 0.6rem;
-      }
-      .step-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .parallel-challenges {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .challenge-item {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .challenge-icon {
-        color: #e74c3c;
-        margin-right: 6px;
-        font-size: 0.8rem;
-      }
-      .challenge-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .optimization-solutions {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .solution-item {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
-        border-radius: 4px;
-      }
-      .solution-icon {
-        color: #27ae60;
-        margin-right: 6px;
-        font-size: 0.8rem;
-      }
-      .solution-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .performance-comparison {
-        background: rgba(243, 156, 18, 0.2);
-        border-radius: 6px;
-        padding: 8px;
-        margin: 6px 0;
-      }
-      .comparison-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 4px;
-        font-size: 0.75rem;
-      }
-      .comparison-content {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.7rem;
-        line-height: 1.2;
-      }
-      .formula-box {
-        background: rgba(142, 68, 173, 0.2);
-        border-radius: 6px;
-        padding: 8px;
-        margin: 6px 0;
-        text-align: center;
-      }
-      .formula-text {
-        font-family: 'Courier New', monospace;
-        color: #8e44ad;
-        font-size: 0.75rem;
-        font-weight: bold;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 18px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            height: 100%;
+        }
+
+        .content-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .panel-icon {
+            font-size: 1.6rem;
+            color: #8e44ad;
+            margin-right: 8px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .moe-concept {
+            background: rgba(230, 126, 34, 0.2);
+            border-left: 4px solid #e67e22;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .concept-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .moe-components {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .component-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .component-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .component-icon {
+            font-size: 1rem;
+            color: #e74c3c;
+            margin-right: 6px;
+        }
+
+        .component-name {
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .component-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.65rem;
+            color: #00ff88;
+            border-left: 3px solid #00ff88;
+            overflow-x: auto;
+            line-height: 1.2;
+        }
+
+        .routing-strategy {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        .strategy-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .strategy-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .strategy-step {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            width: 16px;
+            height: 16px;
+            background: #8e44ad;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 6px;
+            font-size: 0.6rem;
+        }
+
+        .step-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .parallel-challenges {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .challenge-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .challenge-icon {
+            color: #e74c3c;
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        .challenge-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .optimization-solutions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .solution-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .solution-icon {
+            color: #27ae60;
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        .solution-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .performance-comparison {
+            background: rgba(243, 156, 18, 0.2);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        .comparison-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+        }
+
+        .comparison-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .formula-box {
+            background: rgba(142, 68, 173, 0.2);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .formula-text {
+            font-family: 'Courier New', monospace;
+            color: #8e44ad;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">MoE 模块实现</h1>
-      
-      <div class="content-layout">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">MoE 模块实现</h1>
+
+    <div class="content-layout">
         <div class="content-panel">
-          <div class="panel-header">
-            <i class="fas fa-users panel-icon"></i>
-            <h2 class="panel-title">MoE 核心概念</h2>
-          </div>
-          
-          <div class="moe-concept">
-            <div class="concept-text">
-              专家混合(MoE)通过条件计算激活模型的子集，在保持计算量相对稳定的同时大幅增加模型参数。每个token只激活少数几个专家，实现稀疏计算。
+            <div class="panel-header">
+                <i class="fas fa-users panel-icon"></i>
+                <h2 class="panel-title">MoE 核心概念</h2>
             </div>
-          </div>
-          
-          <div class="moe-components">
-            <div class="component-item">
-              <div class="component-header">
-                <i class="fas fa-route component-icon"></i>
-                <div class="component-name">门控网络 (Gating Network)</div>
-              </div>
-              <div class="component-desc">
-                学习将输入token路由到最合适的专家，通常使用Top-K选择策略
-              </div>
+
+            <div class="moe-concept">
+                <div class="concept-text">
+                    专家混合(MoE)通过条件计算激活模型的子集，在保持计算量相对稳定的同时大幅增加模型参数。每个token只激活少数几个专家，实现稀疏计算。
+                </div>
             </div>
-            
-            <div class="component-item">
-              <div class="component-header">
-                <i class="fas fa-brain component-icon"></i>
-                <div class="component-name">专家网络 (Expert Networks)</div>
-              </div>
-              <div class="component-desc">
-                多个独立的MLP网络，每个专家专门处理特定类型的输入模式
-              </div>
+
+            <div class="moe-components">
+                <div class="component-item">
+                    <div class="component-header">
+                        <i class="fas fa-route component-icon"></i>
+                        <div class="component-name">门控网络 (Gating Network)</div>
+                    </div>
+                    <div class="component-desc">
+                        学习将输入token路由到最合适的专家，通常使用Top-K选择策略
+                    </div>
+                </div>
+
+                <div class="component-item">
+                    <div class="component-header">
+                        <i class="fas fa-brain component-icon"></i>
+                        <div class="component-name">专家网络 (Expert Networks)</div>
+                    </div>
+                    <div class="component-desc">
+                        多个独立的MLP网络，每个专家专门处理特定类型的输入模式
+                    </div>
+                </div>
+
+                <div class="component-item">
+                    <div class="component-header">
+                        <i class="fas fa-balance-scale component-icon"></i>
+                        <div class="component-name">负载均衡 (Load Balancing)</div>
+                    </div>
+                    <div class="component-desc">
+                        确保各专家的使用频率相对均衡，避免专家利用不充分
+                    </div>
+                </div>
             </div>
-            
-            <div class="component-item">
-              <div class="component-header">
-                <i class="fas fa-balance-scale component-icon"></i>
-                <div class="component-name">负载均衡 (Load Balancing)</div>
-              </div>
-              <div class="component-desc">
-                确保各专家的使用频率相对均衡，避免专家利用不充分
-              </div>
+
+            <div class="formula-box">
+                <div class="formula-text">
+                    MoE(x) = Σᵢ Gᵢ(x) × Eᵢ(x)<br/>
+                    其中 G(x) = TopK(Softmax(x·Wg))
+                </div>
             </div>
-          </div>
-          
-          <div class="formula-box">
-            <div class="formula-text">
-              MoE(x) = Σᵢ Gᵢ(x) × Eᵢ(x)<br/>
-              其中 G(x) = TopK(Softmax(x·Wg))
+
+            <div class="code-block">
+                class MoELayer(nn.Module):<br/>
+                &nbsp;&nbsp;def __init__(self, hidden_size, num_experts, top_k=2):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.num_experts = num_experts<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.top_k = top_k<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;# 门控网络<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.gate = nn.Linear(hidden_size, num_experts)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;# 专家网络 (每个专家使用张量并行)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.experts = nn.ModuleList([<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParallelMLP(hidden_size, intermediate_size)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for _ in range(num_experts)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;])
             </div>
-          </div>
-          
-          <div class="code-block">
-class MoELayer(nn.Module):<br/>
-&nbsp;&nbsp;def __init__(self, hidden_size, num_experts, top_k=2):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.num_experts = num_experts<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.top_k = top_k<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;# 门控网络<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.gate = nn.Linear(hidden_size, num_experts)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;# 专家网络 (每个专家使用张量并行)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;self.experts = nn.ModuleList([<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParallelMLP(hidden_size, intermediate_size)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for _ in range(num_experts)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;])
-          </div>
-          
-          <div class="performance-comparison">
-            <div class="comparison-title">性能对比</div>
-            <div class="comparison-content">
-              • 参数量: 增加8倍 (8个专家)<br/>
-              • 计算量: 仅增加25% (Top-2激活)<br/>
-              • 内存占用: 专家参数分布存储<br/>
-              • 通信开销: 增加专家间路由通信
+
+            <div class="performance-comparison">
+                <div class="comparison-title">性能对比</div>
+                <div class="comparison-content">
+                    • 参数量: 增加8倍 (8个专家)<br/>
+                    • 计算量: 仅增加25% (Top-2激活)<br/>
+                    • 内存占用: 专家参数分布存储<br/>
+                    • 通信开销: 增加专家间路由通信
+                </div>
             </div>
-          </div>
         </div>
-        
+
         <div class="content-panel">
-          <div class="panel-header">
-            <i class="fas fa-cogs panel-icon"></i>
-            <h2 class="panel-title">并行化挑战与解决方案</h2>
-          </div>
-          
-          <div class="routing-strategy">
-            <div class="strategy-title">路由与计算流程</div>
-            <div class="strategy-steps">
-              <div class="strategy-step">
-                <div class="step-number">1</div>
-                <div class="step-text">门控网络计算专家选择概率</div>
-              </div>
-              <div class="strategy-step">
-                <div class="step-number">2</div>
-                <div class="step-text">Top-K选择激活的专家</div>
-              </div>
-              <div class="strategy-step">
-                <div class="step-number">3</div>
-                <div class="step-text">将token分发到对应专家GPU</div>
-              </div>
-              <div class="strategy-step">
-                <div class="step-number">4</div>
-                <div class="step-text">专家并行计算各自负责的token</div>
-              </div>
-              <div class="strategy-step">
-                <div class="step-number">5</div>
-                <div class="step-text">收集并聚合专家输出结果</div>
-              </div>
+            <div class="panel-header">
+                <i class="fas fa-cogs panel-icon"></i>
+                <h2 class="panel-title">并行化挑战与解决方案</h2>
             </div>
-          </div>
-          
-          <div class="parallel-challenges">
-            <div class="challenge-item">
-              <i class="fas fa-exclamation-triangle challenge-icon"></i>
-              <div class="challenge-text">
-                <strong>负载不均:</strong> 不同专家处理的token数量差异很大
-              </div>
+
+            <div class="routing-strategy">
+                <div class="strategy-title">路由与计算流程</div>
+                <div class="strategy-steps">
+                    <div class="strategy-step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">门控网络计算专家选择概率</div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Top-K选择激活的专家</div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">将token分发到对应专家GPU</div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">4</div>
+                        <div class="step-text">专家并行计算各自负责的token</div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">5</div>
+                        <div class="step-text">收集并聚合专家输出结果</div>
+                    </div>
+                </div>
             </div>
-            <div class="challenge-item">
-              <i class="fas fa-exchange-alt challenge-icon"></i>
-              <div class="challenge-text">
-                <strong>动态路由:</strong> 需要在运行时进行token重分布
-              </div>
+
+            <div class="parallel-challenges">
+                <div class="challenge-item">
+                    <i class="fas fa-exclamation-triangle challenge-icon"></i>
+                    <div class="challenge-text">
+                        <strong>负载不均:</strong> 不同专家处理的token数量差异很大
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <i class="fas fa-exchange-alt challenge-icon"></i>
+                    <div class="challenge-text">
+                        <strong>动态路由:</strong> 需要在运行时进行token重分布
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <i class="fas fa-memory challenge-icon"></i>
+                    <div class="challenge-text">
+                        <strong>内存碎片:</strong> 专家激活模式导致内存使用不规律
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <i class="fas fa-network-wired challenge-icon"></i>
+                    <div class="challenge-text">
+                        <strong>通信复杂:</strong> All-to-All通信模式增加延迟
+                    </div>
+                </div>
             </div>
-            <div class="challenge-item">
-              <i class="fas fa-memory challenge-icon"></i>
-              <div class="challenge-text">
-                <strong>内存碎片:</strong> 专家激活模式导致内存使用不规律
-              </div>
+
+            <div class="optimization-solutions">
+                <div class="solution-item">
+                    <i class="fas fa-balance-scale solution-icon"></i>
+                    <div class="solution-text">
+                        <strong>容量因子:</strong> 限制每个专家处理的最大token数
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <i class="fas fa-compress solution-icon"></i>
+                    <div class="solution-text">
+                        <strong>专家分片:</strong> 将专家参数进一步张量并行分割
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <i class="fas fa-sync solution-icon"></i>
+                    <div class="solution-text">
+                        <strong>异步路由:</strong> 重叠路由计算与专家计算
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <i class="fas fa-layer-group solution-icon"></i>
+                    <div class="solution-text">
+                        <strong>层次化MoE:</strong> 在不同层使用不同的专家配置
+                    </div>
+                </div>
             </div>
-            <div class="challenge-item">
-              <i class="fas fa-network-wired challenge-icon"></i>
-              <div class="challenge-text">
-                <strong>通信复杂:</strong> All-to-All通信模式增加延迟
-              </div>
+
+            <div class="code-block">
+                def forward(self, hidden_states):<br/>
+                &nbsp;&nbsp;batch_size, seq_len, hidden_size = hidden_states.shape<br/>
+                &nbsp;&nbsp;hidden_states = hidden_states.view(-1, hidden_size)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 门控计算<br/>
+                &nbsp;&nbsp;router_logits = self.gate(hidden_states)<br/>
+                &nbsp;&nbsp;routing_weights, selected_experts = torch.topk(<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;router_logits, self.top_k, dim=-1)<br/>
+                &nbsp;&nbsp;routing_weights = F.softmax(routing_weights, dim=-1)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 专家计算<br/>
+                &nbsp;&nbsp;final_hidden_states = torch.zeros_like(hidden_states)<br/>
+                &nbsp;&nbsp;for i, expert in enumerate(self.experts):<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;expert_mask = (selected_experts == i).any(dim=-1)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;if expert_mask.any():<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_input = hidden_states[expert_mask]<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_output = expert(expert_input)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 加权聚合<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weights = routing_weights[expert_mask, i]<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final_hidden_states[expert_mask] += weights * expert_output<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;return final_hidden_states.view(batch_size, seq_len, hidden_size)
             </div>
-          </div>
-          
-          <div class="optimization-solutions">
-            <div class="solution-item">
-              <i class="fas fa-balance-scale solution-icon"></i>
-              <div class="solution-text">
-                <strong>容量因子:</strong> 限制每个专家处理的最大token数
-              </div>
-            </div>
-            <div class="solution-item">
-              <i class="fas fa-compress solution-icon"></i>
-              <div class="solution-text">
-                <strong>专家分片:</strong> 将专家参数进一步张量并行分割
-              </div>
-            </div>
-            <div class="solution-item">
-              <i class="fas fa-sync solution-icon"></i>
-              <div class="solution-text">
-                <strong>异步路由:</strong> 重叠路由计算与专家计算
-              </div>
-            </div>
-            <div class="solution-item">
-              <i class="fas fa-layer-group solution-icon"></i>
-              <div class="solution-text">
-                <strong>层次化MoE:</strong> 在不同层使用不同的专家配置
-              </div>
-            </div>
-          </div>
-          
-          <div class="code-block">
-def forward(self, hidden_states):<br/>
-&nbsp;&nbsp;batch_size, seq_len, hidden_size = hidden_states.shape<br/>
-&nbsp;&nbsp;hidden_states = hidden_states.view(-1, hidden_size)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 门控计算<br/>
-&nbsp;&nbsp;router_logits = self.gate(hidden_states)<br/>
-&nbsp;&nbsp;routing_weights, selected_experts = torch.topk(<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;router_logits, self.top_k, dim=-1)<br/>
-&nbsp;&nbsp;routing_weights = F.softmax(routing_weights, dim=-1)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 专家计算<br/>
-&nbsp;&nbsp;final_hidden_states = torch.zeros_like(hidden_states)<br/>
-&nbsp;&nbsp;for i, expert in enumerate(self.experts):<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;expert_mask = (selected_experts == i).any(dim=-1)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;if expert_mask.any():<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_input = hidden_states[expert_mask]<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_output = expert(expert_input)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 加权聚合<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weights = routing_weights[expert_mask, i]<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final_hidden_states[expert_mask] += weights * expert_output<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;return final_hidden_states.view(batch_size, seq_len, hidden_size)
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

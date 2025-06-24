@@ -1,273 +1,305 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 40px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 3rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 30px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        height: 100%;
-      }
-      .left-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-      .parallel-card {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-        flex: 1;
-      }
-      .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-      .card-icon {
-        font-size: 1.8rem;
-        margin-right: 12px;
-      }
-      .card-title {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: white;
-      }
-      .card-description {
-        font-size: 0.95rem;
-        color: rgba(255,255,255,0.9);
-        line-height: 1.5;
-        margin-bottom: 12px;
-      }
-      .card-metrics {
-        display: flex;
-        gap: 15px;
-      }
-      .metric {
-        background: rgba(255,255,255,0.05);
-        padding: 8px 12px;
-        border-radius: 6px;
-        text-align: center;
-        flex: 1;
-      }
-      .metric-value {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #3498db;
-      }
-      .metric-label {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.7);
-      }
-      .right-panel {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-      .architecture-diagram {
-        width: 100%;
-        height: 350px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 15px;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-      }
-      .diagram-image {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 10px;
-      }
-      .comparison-table {
-        width: 100%;
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px;
-        padding: 15px;
-      }
-      .table-header {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
-      }
-      .table-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 8px;
-        padding: 8px 0;
-      }
-      .table-cell {
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-      }
-      .table-header .table-cell {
-        font-weight: bold;
-        color: white;
-      }
-      .dp-color { color: #e74c3c; }
-      .pp-color { color: #f39c12; }
-      .tp-color { color: #27ae60; }
-      .sp-color { color: #9b59b6; }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: 100%;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .parallel-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            margin-right: 12px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .card-metrics {
+            display: flex;
+            gap: 15px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .architecture-diagram {
+            width: 100%;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .diagram-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px 0;
+        }
+
+        .table-cell {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+        }
+
+        .table-header .table-cell {
+            font-weight: bold;
+            color: white;
+        }
+
+        .dp-color {
+            color: #e74c3c;
+        }
+
+        .pp-color {
+            color: #f39c12;
+        }
+
+        .tp-color {
+            color: #27ae60;
+        }
+
+        .sp-color {
+            color: #9b59b6;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">并行技术概览</h1>
-      
-      <div class="content-layout">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">并行技术概览</h1>
+
+    <div class="content-layout">
         <div class="left-panel">
-          <div class="parallel-card">
-            <div class="card-header">
-              <i class="fas fa-database card-icon dp-color"></i>
-              <h3 class="card-title">数据并行 (DP)</h3>
+            <div class="parallel-card">
+                <div class="card-header">
+                    <i class="fas fa-database card-icon dp-color"></i>
+                    <h3 class="card-title">数据并行 (DP)</h3>
+                </div>
+                <p class="card-description">
+                    将训练数据分割到多个GPU，每个GPU维护完整的模型副本，通过梯度聚合实现参数同步
+                </p>
+                <div class="card-metrics">
+                    <div class="metric">
+                        <div class="metric-value">简单</div>
+                        <div class="metric-label">实现难度</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">高</div>
+                        <div class="metric-label">通信开销</div>
+                    </div>
+                </div>
             </div>
-            <p class="card-description">
-              将训练数据分割到多个GPU，每个GPU维护完整的模型副本，通过梯度聚合实现参数同步
-            </p>
-            <div class="card-metrics">
-              <div class="metric">
-                <div class="metric-value">简单</div>
-                <div class="metric-label">实现难度</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">高</div>
-                <div class="metric-label">通信开销</div>
-              </div>
+
+            <div class="parallel-card">
+                <div class="card-header">
+                    <i class="fas fa-stream card-icon pp-color"></i>
+                    <h3 class="card-title">流水线并行 (PP)</h3>
+                </div>
+                <p class="card-description">
+                    将模型层按序分配到不同GPU，形成流水线处理，通过调度策略减少空闲时间
+                </p>
+                <div class="card-metrics">
+                    <div class="metric">
+                        <div class="metric-value">中等</div>
+                        <div class="metric-label">实现难度</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">低</div>
+                        <div class="metric-label">通信开销</div>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="parallel-card">
-            <div class="card-header">
-              <i class="fas fa-stream card-icon pp-color"></i>
-              <h3 class="card-title">流水线并行 (PP)</h3>
+
+            <div class="parallel-card">
+                <div class="card-header">
+                    <i class="fas fa-layer-group card-icon tp-color"></i>
+                    <h3 class="card-title">张量并行 (TP)</h3>
+                </div>
+                <p class="card-description">
+                    将单个张量操作分割到多个GPU，实现算子级别的并行，需要频繁的同步通信
+                </p>
+                <div class="card-metrics">
+                    <div class="metric">
+                        <div class="metric-value">复杂</div>
+                        <div class="metric-label">实现难度</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">中等</div>
+                        <div class="metric-label">通信开销</div>
+                    </div>
+                </div>
             </div>
-            <p class="card-description">
-              将模型层按序分配到不同GPU，形成流水线处理，通过调度策略减少空闲时间
-            </p>
-            <div class="card-metrics">
-              <div class="metric">
-                <div class="metric-value">中等</div>
-                <div class="metric-label">实现难度</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">低</div>
-                <div class="metric-label">通信开销</div>
-              </div>
+
+            <div class="parallel-card">
+                <div class="card-header">
+                    <i class="fas fa-arrows-alt-h card-icon sp-color"></i>
+                    <h3 class="card-title">序列并行 (SP)</h3>
+                </div>
+                <p class="card-description">
+                    在张量并行基础上，将序列维度也进行分割，进一步减少激活内存占用
+                </p>
+                <div class="card-metrics">
+                    <div class="metric">
+                        <div class="metric-value">复杂</div>
+                        <div class="metric-label">实现难度</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">无</div>
+                        <div class="metric-label">额外通信</div>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="parallel-card">
-            <div class="card-header">
-              <i class="fas fa-layer-group card-icon tp-color"></i>
-              <h3 class="card-title">张量并行 (TP)</h3>
-            </div>
-            <p class="card-description">
-              将单个张量操作分割到多个GPU，实现算子级别的并行，需要频繁的同步通信
-            </p>
-            <div class="card-metrics">
-              <div class="metric">
-                <div class="metric-value">复杂</div>
-                <div class="metric-label">实现难度</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">中等</div>
-                <div class="metric-label">通信开销</div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="parallel-card">
-            <div class="card-header">
-              <i class="fas fa-arrows-alt-h card-icon sp-color"></i>
-              <h3 class="card-title">序列并行 (SP)</h3>
-            </div>
-            <p class="card-description">
-              在张量并行基础上，将序列维度也进行分割，进一步减少激活内存占用
-            </p>
-            <div class="card-metrics">
-              <div class="metric">
-                <div class="metric-value">复杂</div>
-                <div class="metric-label">实现难度</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">无</div>
-                <div class="metric-label">额外通信</div>
-              </div>
-            </div>
-          </div>
         </div>
-        
+
         <div class="right-panel">
-          <div class="architecture-diagram">
-            <img src="dp_pp_tp.png" alt="Parallel Architecture" class="diagram-image">
-          </div>
-          
-          <div class="comparison-table">
-            <div class="table-header">
-              <div class="table-cell">并行类型</div>
-              <div class="table-cell">内存节省</div>
-              <div class="table-cell">通信频率</div>
-              <div class="table-cell">适用场景</div>
+            <div class="architecture-diagram">
+                <img alt="Parallel Architecture" class="diagram-image" src="dp_pp_tp.png">
             </div>
-            <div class="table-row">
-              <div class="table-cell dp-color">数据并行</div>
-              <div class="table-cell">无</div>
-              <div class="table-cell">每步一次</div>
-              <div class="table-cell">小模型</div>
+
+            <div class="comparison-table">
+                <div class="table-header">
+                    <div class="table-cell">并行类型</div>
+                    <div class="table-cell">内存节省</div>
+                    <div class="table-cell">通信频率</div>
+                    <div class="table-cell">适用场景</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell dp-color">数据并行</div>
+                    <div class="table-cell">无</div>
+                    <div class="table-cell">每步一次</div>
+                    <div class="table-cell">小模型</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell pp-color">流水线并行</div>
+                    <div class="table-cell">高</div>
+                    <div class="table-cell">层间传递</div>
+                    <div class="table-cell">深层模型</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell tp-color">张量并行</div>
+                    <div class="table-cell">中等</div>
+                    <div class="table-cell">算子内</div>
+                    <div class="table-cell">宽层模型</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell sp-color">序列并行</div>
+                    <div class="table-cell">额外</div>
+                    <div class="table-cell">无额外</div>
+                    <div class="table-cell">长序列</div>
+                </div>
             </div>
-            <div class="table-row">
-              <div class="table-cell pp-color">流水线并行</div>
-              <div class="table-cell">高</div>
-              <div class="table-cell">层间传递</div>
-              <div class="table-cell">深层模型</div>
-            </div>
-            <div class="table-row">
-              <div class="table-cell tp-color">张量并行</div>
-              <div class="table-cell">中等</div>
-              <div class="table-cell">算子内</div>
-              <div class="table-cell">宽层模型</div>
-            </div>
-            <div class="table-row">
-              <div class="table-cell sp-color">序列并行</div>
-              <div class="table-cell">额外</div>
-              <div class="table-cell">无额外</div>
-              <div class="table-cell">长序列</div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>

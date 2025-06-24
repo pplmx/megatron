@@ -1,328 +1,352 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      .slide-container {
-        width: 1280px; 
-        min-height: 720px; 
-        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 35px;
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-      .title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-      .main-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-        height: 100%;
-      }
-      .content-card {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-      }
-      .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-      .card-icon {
-        font-size: 2rem;
-        color: #e74c3c;
-        margin-right: 12px;
-      }
-      .card-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: white;
-      }
-      .concept-explanation {
-        background: rgba(155, 89, 182, 0.2);
-        border-left: 4px solid #9b59b6;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-      }
-      .concept-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 1rem;
-        line-height: 1.5;
-      }
-      .memory-comparison {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .comparison-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 12px;
-        border-radius: 8px;
-      }
-      .comparison-label {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.95rem;
-      }
-      .comparison-value {
-        font-weight: bold;
-        color: #e74c3c;
-        font-size: 1rem;
-      }
-      .implementation-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .step-item {
-        background: rgba(142, 68, 173, 0.2);
-        border-left: 4px solid #8e44ad;
-        padding: 12px;
-        border-radius: 8px;
-      }
-      .step-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .step-number {
-        width: 24px;
-        height: 24px;
-        background: #8e44ad;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 10px;
-        font-size: 0.8rem;
-      }
-      .step-title {
-        font-weight: bold;
-        color: white;
-        font-size: 1rem;
-      }
-      .step-desc {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-      .code-snippet {
-        background: rgba(0,0,0,0.3);
-        border-radius: 8px;
-        padding: 12px;
-        margin: 12px 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.8rem;
-        color: #00ff88;
-        border-left: 4px solid #00ff88;
-      }
-      .optimization-box {
-        background: rgba(231, 76, 60, 0.2);
-        border-radius: 10px;
-        padding: 15px;
-        margin-top: 15px;
-      }
-      .optimization-title {
-        font-weight: bold;
-        color: white;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-      }
-      .optimization-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .optimization-item {
-        display: flex;
-        align-items: center;
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
-      }
-      .opt-icon {
-        color: #e74c3c;
-        margin-right: 8px;
-        font-size: 1rem;
-      }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #e74c3c;
+            margin-right: 12px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .concept-explanation {
+            background: rgba(155, 89, 182, 0.2);
+            border-left: 4px solid #9b59b6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .concept-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .memory-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .comparison-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .comparison-value {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1rem;
+        }
+
+        .implementation-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step-item {
+            background: rgba(142, 68, 173, 0.2);
+            border-left: 4px solid #8e44ad;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: #8e44ad;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.8rem;
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .step-desc {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-snippet {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #00ff88;
+            border-left: 4px solid #00ff88;
+        }
+
+        .optimization-box {
+            background: rgba(231, 76, 60, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .optimization-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .optimization-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .optimization-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .opt-icon {
+            color: #e74c3c;
+            margin-right: 8px;
+            font-size: 1rem;
+        }
     </style>
-  </head>
-  <body>
-    <div class="slide-container">
-      <h1 class="title">序列并行 (Sequence Parallelism)</h1>
-      
-      <div class="main-layout">
+</head>
+<body>
+<div class="slide-container">
+    <h1 class="title">序列并行 (Sequence Parallelism)</h1>
+
+    <div class="main-layout">
         <div class="content-card">
-          <div class="card-header">
-            <i class="fas fa-lightbulb card-icon"></i>
-            <h2 class="card-title">核心概念</h2>
-          </div>
-          
-          <div class="concept-explanation">
-            <div class="concept-text">
-              序列并行是张量并行的扩展，通过将序列维度也进行分割，进一步减少激活内存占用。它利用了张量并行中已有的通信操作，无需额外的通信开销。
+            <div class="card-header">
+                <i class="fas fa-lightbulb card-icon"></i>
+                <h2 class="card-title">核心概念</h2>
             </div>
-          </div>
-          
-          <div class="memory-comparison">
-            <div class="comparison-item">
-              <span class="comparison-label">标准张量并行激活内存</span>
-              <span class="comparison-value">100%</span>
+
+            <div class="concept-explanation">
+                <div class="concept-text">
+                    序列并行是张量并行的扩展，通过将序列维度也进行分割，进一步减少激活内存占用。它利用了张量并行中已有的通信操作，无需额外的通信开销。
+                </div>
             </div>
-            <div class="comparison-item">
-              <span class="comparison-label">序列并行激活内存</span>
-              <span class="comparison-value">25% (4GPU)</span>
+
+            <div class="memory-comparison">
+                <div class="comparison-item">
+                    <span class="comparison-label">标准张量并行激活内存</span>
+                    <span class="comparison-value">100%</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="comparison-label">序列并行激活内存</span>
+                    <span class="comparison-value">25% (4GPU)</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="comparison-label">额外通信开销</span>
+                    <span class="comparison-value">0%</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="comparison-label">支持序列长度提升</span>
+                    <span class="comparison-value">4x</span>
+                </div>
             </div>
-            <div class="comparison-item">
-              <span class="comparison-label">额外通信开销</span>
-              <span class="comparison-value">0%</span>
+
+            <div class="code-snippet">
+                # 序列并行实现示例<br/>
+                def sequence_parallel_forward(x):<br/>
+                &nbsp;&nbsp;# 输入: [batch, seq_len, hidden]<br/>
+                &nbsp;&nbsp;# 分割序列维度<br/>
+                &nbsp;&nbsp;local_seq_len = seq_len // world_size<br/>
+                &nbsp;&nbsp;x_local = x[:, rank*local_seq_len:(rank+1)*local_seq_len, :]<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 正常的张量并行计算<br/>
+                &nbsp;&nbsp;output_local = tensor_parallel_layer(x_local)<br/>
+                &nbsp;&nbsp;<br/>
+                &nbsp;&nbsp;# 通过all-gather恢复完整序列<br/>
+                &nbsp;&nbsp;output = all_gather(output_local, dim=1)<br/>
+                &nbsp;&nbsp;return output
             </div>
-            <div class="comparison-item">
-              <span class="comparison-label">支持序列长度提升</span>
-              <span class="comparison-value">4x</span>
+
+            <div class="optimization-box">
+                <div class="optimization-title">关键优化</div>
+                <div class="optimization-list">
+                    <div class="optimization-item">
+                        <i class="fas fa-arrow-right opt-icon"></i>
+                        <span>复用张量并行的all-gather操作</span>
+                    </div>
+                    <div class="optimization-item">
+                        <i class="fas fa-arrow-right opt-icon"></i>
+                        <span>智能选择分割维度以最大化内存节省</span>
+                    </div>
+                    <div class="optimization-item">
+                        <i class="fas fa-arrow-right opt-icon"></i>
+                        <span>与Dropout、LayerNorm等操作兼容</span>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="code-snippet">
-# 序列并行实现示例<br/>
-def sequence_parallel_forward(x):<br/>
-&nbsp;&nbsp;# 输入: [batch, seq_len, hidden]<br/>
-&nbsp;&nbsp;# 分割序列维度<br/>
-&nbsp;&nbsp;local_seq_len = seq_len // world_size<br/>
-&nbsp;&nbsp;x_local = x[:, rank*local_seq_len:(rank+1)*local_seq_len, :]<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 正常的张量并行计算<br/>
-&nbsp;&nbsp;output_local = tensor_parallel_layer(x_local)<br/>
-&nbsp;&nbsp;<br/>
-&nbsp;&nbsp;# 通过all-gather恢复完整序列<br/>
-&nbsp;&nbsp;output = all_gather(output_local, dim=1)<br/>
-&nbsp;&nbsp;return output
-          </div>
-          
-          <div class="optimization-box">
-            <div class="optimization-title">关键优化</div>
-            <div class="optimization-list">
-              <div class="optimization-item">
-                <i class="fas fa-arrow-right opt-icon"></i>
-                <span>复用张量并行的all-gather操作</span>
-              </div>
-              <div class="optimization-item">
-                <i class="fas fa-arrow-right opt-icon"></i>
-                <span>智能选择分割维度以最大化内存节省</span>
-              </div>
-              <div class="optimization-item">
-                <i class="fas fa-arrow-right opt-icon"></i>
-                <span>与Dropout、LayerNorm等操作兼容</span>
-              </div>
-            </div>
-          </div>
         </div>
-        
+
         <div class="content-card">
-          <div class="card-header">
-            <i class="fas fa-cogs card-icon"></i>
-            <h2 class="card-title">实现细节</h2>
-          </div>
-          
-          <div class="implementation-steps">
-            <div class="step-item">
-              <div class="step-header">
-                <div class="step-number">1</div>
-                <div class="step-title">激活分割</div>
-              </div>
-              <div class="step-desc">
-                将非参数操作（如Dropout、LayerNorm）的输入按序列维度分割到各GPU
-              </div>
+            <div class="card-header">
+                <i class="fas fa-cogs card-icon"></i>
+                <h2 class="card-title">实现细节</h2>
             </div>
-            
-            <div class="step-item">
-              <div class="step-header">
-                <div class="step-number">2</div>
-                <div class="step-title">通信优化</div>
-              </div>
-              <div class="step-desc">
-                将all-reduce操作替换为reduce-scatter + all-gather的组合，节省激活内存
-              </div>
+
+            <div class="implementation-steps">
+                <div class="step-item">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">激活分割</div>
+                    </div>
+                    <div class="step-desc">
+                        将非参数操作（如Dropout、LayerNorm）的输入按序列维度分割到各GPU
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">通信优化</div>
+                    </div>
+                    <div class="step-desc">
+                        将all-reduce操作替换为reduce-scatter + all-gather的组合，节省激活内存
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">梯度处理</div>
+                    </div>
+                    <div class="step-desc">
+                        反向传播时正确处理分布式梯度，确保参数更新的一致性
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <div class="step-title">边界处理</div>
+                    </div>
+                    <div class="step-desc">
+                        处理序列长度不能被GPU数量整除的情况，确保计算正确性
+                    </div>
+                </div>
             </div>
-            
-            <div class="step-item">
-              <div class="step-header">
-                <div class="step-number">3</div>
-                <div class="step-title">梯度处理</div>
-              </div>
-              <div class="step-desc">
-                反向传播时正确处理分布式梯度，确保参数更新的一致性
-              </div>
+
+            <div class="code-snippet">
+                # 通信模式转换<br/>
+                # 原始: all-reduce<br/>
+                def original_communication(tensor):<br/>
+                &nbsp;&nbsp;return all_reduce(tensor)<br/>
+                <br/>
+                # 序列并行: reduce-scatter + all-gather<br/>
+                def sequence_parallel_communication(tensor):<br/>
+                &nbsp;&nbsp;# 第一步: reduce-scatter<br/>
+                &nbsp;&nbsp;local_result = reduce_scatter(tensor)<br/>
+                &nbsp;&nbsp;# 第二步: all-gather (在需要时)<br/>
+                &nbsp;&nbsp;full_result = all_gather(local_result)<br/>
+                &nbsp;&nbsp;return full_result
             </div>
-            
-            <div class="step-item">
-              <div class="step-header">
-                <div class="step-number">4</div>
-                <div class="step-title">边界处理</div>
-              </div>
-              <div class="step-desc">
-                处理序列长度不能被GPU数量整除的情况，确保计算正确性
-              </div>
+
+            <div class="optimization-box">
+                <div class="optimization-title">适用场景</div>
+                <div class="optimization-list">
+                    <div class="optimization-item">
+                        <i class="fas fa-check opt-icon"></i>
+                        <span>长序列训练（序列长度 > 2048）</span>
+                    </div>
+                    <div class="optimization-item">
+                        <i class="fas fa-check opt-icon"></i>
+                        <span>大批次训练场景</span>
+                    </div>
+                    <div class="optimization-item">
+                        <i class="fas fa-check opt-icon"></i>
+                        <span>内存受限的训练环境</span>
+                    </div>
+                    <div class="optimization-item">
+                        <i class="fas fa-check opt-icon"></i>
+                        <span>与张量并行结合使用</span>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-          <div class="code-snippet">
-# 通信模式转换<br/>
-# 原始: all-reduce<br/>
-def original_communication(tensor):<br/>
-&nbsp;&nbsp;return all_reduce(tensor)<br/>
-<br/>
-# 序列并行: reduce-scatter + all-gather<br/>
-def sequence_parallel_communication(tensor):<br/>
-&nbsp;&nbsp;# 第一步: reduce-scatter<br/>
-&nbsp;&nbsp;local_result = reduce_scatter(tensor)<br/>
-&nbsp;&nbsp;# 第二步: all-gather (在需要时)<br/>
-&nbsp;&nbsp;full_result = all_gather(local_result)<br/>
-&nbsp;&nbsp;return full_result
-          </div>
-          
-          <div class="optimization-box">
-            <div class="optimization-title">适用场景</div>
-            <div class="optimization-list">
-              <div class="optimization-item">
-                <i class="fas fa-check opt-icon"></i>
-                <span>长序列训练（序列长度 > 2048）</span>
-              </div>
-              <div class="optimization-item">
-                <i class="fas fa-check opt-icon"></i>
-                <span>大批次训练场景</span>
-              </div>
-              <div class="optimization-item">
-                <i class="fas fa-check opt-icon"></i>
-                <span>内存受限的训练环境</span>
-              </div>
-              <div class="optimization-item">
-                <i class="fas fa-check opt-icon"></i>
-                <span>与张量并行结合使用</span>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
 

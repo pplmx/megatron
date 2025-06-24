@@ -235,8 +235,10 @@ def sequence_parallel_forward(x):
     # 分割序列维度
     local_seq_len = seq_len // world_size
     x_local = x[:, rank * local_seq_len:(rank + 1) * local_seq_len, :]
+
     # 正常的张量并行计算
     output_local = tensor_parallel_layer(x_local)
+
     # 通过all-gather恢复完整序列
     output = all_gather(output_local, dim=1)
     return output

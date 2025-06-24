@@ -4,10 +4,15 @@
 # Init the venv
 init: sync
 	@uvx pre-commit install --hook-type commit-msg --hook-type pre-push
+	@uv run playwright install chromium
 
 # Sync the project with the venv
 sync:
 	@uv sync
+
+# Run
+run:
+	@uv run main.py
 
 # Ruff
 ruff:

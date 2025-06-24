@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -96,7 +99,7 @@
             line-height: 1.3;
         }
 
-        .code-block {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
             padding: 10px;
@@ -270,21 +273,21 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                class ParallelSelfAttention(nn.Module):<br/>
-                &nbsp;&nbsp;def __init__(self, hidden_size, num_heads):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.hidden_size = hidden_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.num_heads = num_heads<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.head_dim = hidden_size // num_heads<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# Q, K, V 投影 (Column Parallel)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.qkv_proj = ColumnParallelLinear(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, 3 * hidden_size)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 输出投影 (Row Parallel)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.out_proj = RowParallelLinear(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, hidden_size)
-            </div>
+            <pre><code class="language-python">
+class ParallelSelfAttention(nn.Module):
+    def __init__(self, hidden_size, num_heads):
+        self.hidden_size = hidden_size
+        self.num_heads = num_heads
+        self.head_dim = hidden_size // num_heads
+
+        # Q, K, V 投影 (Column Parallel)
+        self.qkv_proj = ColumnParallelLinear(
+            hidden_size, 3 * hidden_size)
+
+        # 输出投影 (Row Parallel)
+        self.out_proj = RowParallelLinear(
+            hidden_size, hidden_size)
+            </code></pre>
 
             <div class="memory-analysis">
                 <div class="memory-title">内存优化效果</div>
@@ -324,28 +327,29 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                def forward(self, hidden_states):<br/>
-                &nbsp;&nbsp;# QKV投影 (Column Parallel)<br/>
-                &nbsp;&nbsp;q, k, v = (<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.qkv_proj(hidden_states)  # [B, S, 3*H]<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;.reshape(batch, seq_len, 3, local_heads, head_dim)  # [B, S, 3, N, D]<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;.permute(2, 0, 3, 1, 4)  # [3, B, N, S, D]<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;.chunk(3, dim=0)  # Each [B, N, S, D]<br/>
-                &nbsp;&nbsp;)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 计算注意力<br/>
-                &nbsp;&nbsp;context = F.scaled_dot_product_attention(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;q, k, v,<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;dropout_p=0.0,<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;is_causal=False,<br/>
-                &nbsp;&nbsp;)  # [B, N, S, D]<br/>
-                &nbsp;&nbsp;context = context.transpose(1, 2).reshape(batch, seq_len, local_hidden)  # [B, S, N*D]<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 输出投影 (Row Parallel)<br/>
-                &nbsp;&nbsp;output = self.out_proj(context)<br/>
-                &nbsp;&nbsp;return output
-            </div>
+            <pre><code class="language-python">
+def forward(self, hidden_states):
+    # QKV投影 (Column Parallel)
+    q, k, v = (
+        self.qkv_proj(hidden_states)  # [B, S, 3*H]
+        .reshape(batch, seq_len, 3, local_heads, head_dim)  # [B, S, 3, N, D]
+        .permute(2, 0, 3, 1, 4)  # [3, B, N, S, D]
+        .chunk(3, dim=0)  # Each [B, N, S, D]
+    )
+
+    # 计算注意力
+    context = F.scaled_dot_product_attention(
+        q, k, v,
+        dropout_p=0.0,
+        is_causal=False,
+    )  # [B, N, S, D]
+    context = context.transpose(1, 2).reshape(batch, seq_len, local_hidden)  # [B, S, N*D]
+
+    # 输出投影 (Row Parallel)
+    output = self.out_proj(context)
+    return output
+
+            </code></pre>
 
             <div class="optimization-points">
                 <div class="opt-point">

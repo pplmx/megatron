@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -59,7 +62,7 @@
             color: white;
         }
 
-        .code-block {
+        .code-block, .hljs {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
             padding: 12px;
@@ -209,40 +212,40 @@
                 <h2 class="panel-title">核心实现代码</h2>
             </div>
 
-            <div class="code-block">
-                class ColumnParallelLinear(nn.Module):<br/>
-                &nbsp;&nbsp;def __init__(self, input_size, output_size, bias=True):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.input_size = input_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.output_size = output_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.world_size = get_tensor_model_parallel_world_size()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.rank = get_tensor_model_parallel_rank()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 按列分割输出维度<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;assert output_size % self.world_size == 0<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition = output_size // self.world_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 初始化权重和偏置<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.weight = Parameter(torch.empty(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition, input_size))<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;if bias:<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = Parameter(torch.empty(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.output_size_per_partition))<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;else:<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = None
-            </div>
+            <pre><code class="language-python">
+class ColumnParallelLinear(nn.Module):
+    def __init__(self, input_size, output_size, bias=True):
+        super().__init__()
+        self.input_size = input_size
+        self.output_size = output_size
+        self.world_size = get_tensor_model_parallel_world_size()
+        self.rank = get_tensor_model_parallel_rank()
 
-            <div class="code-block">
-                &nbsp;&nbsp;def forward(self, input_):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 输入需要在所有GPU上复制<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;input_parallel = copy_to_tensor_model_parallel_region(input_)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 执行线性变换<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;output_parallel = F.linear(input_parallel, self.weight, self.bias)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 返回分割后的输出（不进行聚合）<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;return output_parallel
-            </div>
+        # 按列分割输出维度
+        assert output_size % self.world_size == 0
+        self.output_size_per_partition = output_size // self.world_size
+
+        # 初始化权重和偏置
+        self.weight = Parameter(torch.empty(
+                self.output_size_per_partition, input_size))
+        if bias:
+            self.bias = Parameter(torch.empty(
+                self.output_size_per_partition))
+        else:
+            self.bias = None
+            </code></pre>
+
+            <pre><code class="language-python">
+def forward(self, input_):
+    # 输入需要在所有GPU上复制
+    input_parallel = copy_to_tensor_model_parallel_region(input_)
+
+    # 执行线性变换
+    output_parallel = F.linear(input_parallel, self.weight, self.bias)
+
+    # 返回分割后的输出（不进行聚合）
+    return output_parallel
+            </code></pre>
 
             <div class="formula-box">
                 <div class="formula-text">

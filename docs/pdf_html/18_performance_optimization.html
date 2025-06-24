@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -220,7 +223,7 @@
             line-height: 1.2;
         }
 
-        .code-snippet {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.3);
             border-radius: 6px;
             padding: 8px;
@@ -362,17 +365,17 @@
                 </div>
             </div>
 
-            <div class="code-snippet">
-                # 性能优化配置示例<br/>
-                config = {<br/>
-                &nbsp;&nbsp;"recompute_activations": True,<br/>
-                &nbsp;&nbsp;"sequence_parallel": True,<br/>
-                &nbsp;&nbsp;"use_flash_attn": True,<br/>
-                &nbsp;&nbsp;"overlap_grad_reduce": True,<br/>
-                &nbsp;&nbsp;"use_fused_layernorm": True,<br/>
-                &nbsp;&nbsp;"gradient_accumulation_fusion": True<br/>
-                }
-            </div>
+            <pre><code class="language-python">
+# 性能优化配置示例
+config = {
+    "recompute_activations": True,
+    "sequence_parallel": True,
+    "use_flash_attn": True,
+    "overlap_grad_reduce": True,
+    "use_fused_layernorm": True,
+    "gradient_accumulation_fusion": True
+}
+            </code></pre>
         </div>
 
         <div class="content-panel">
@@ -515,18 +518,18 @@
                 </div>
             </div>
 
-            <div class="code-snippet">
-                # 推荐配置模板<br/>
-                # 175B模型，1024 GPU配置<br/>
-                export TP_SIZE=8<br/>
-                export PP_SIZE=16<br/>
-                export DP_SIZE=8<br/>
-                export MICRO_BATCH_SIZE=1<br/>
-                export GLOBAL_BATCH_SIZE=1024<br/>
-                export SEQ_LEN=2048<br/>
-                export RECOMPUTE_ACTIVATIONS=true<br/>
-                export USE_FLASH_ATTN=true
-            </div>
+            <pre><code class="language-shell">
+# 推荐配置模板
+# 175B模型，1024 GPU配置
+export TP_SIZE=8
+export PP_SIZE=16
+export DP_SIZE=8
+export MICRO_BATCH_SIZE=1
+export GLOBAL_BATCH_SIZE=1024
+export SEQ_LEN=2048
+export RECOMPUTE_ACTIVATIONS=true
+export USE_FLASH_ATTN=true
+            </code></pre>
         </div>
     </div>
 </div>

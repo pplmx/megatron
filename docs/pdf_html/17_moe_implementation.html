@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -109,7 +112,7 @@
             line-height: 1.2;
         }
 
-        .code-block {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
             padding: 10px;
@@ -315,21 +318,22 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                class MoELayer(nn.Module):<br/>
-                &nbsp;&nbsp;def __init__(self, hidden_size, num_experts, top_k=2):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.num_experts = num_experts<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.top_k = top_k<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 门控网络<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.gate = nn.Linear(hidden_size, num_experts)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 专家网络 (每个专家使用张量并行)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.experts = nn.ModuleList([<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParallelMLP(hidden_size, intermediate_size)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for _ in range(num_experts)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;])
-            </div>
+            <pre><code class="language-python">
+class MoELayer(nn.Module):
+
+    def __init__(self, hidden_size, num_experts, top_k=2):
+        self.num_experts = num_experts
+        self.top_k = top_k
+
+        # 门控网络
+        self.gate = nn.Linear(hidden_size, num_experts)
+
+        # 专家网络 (每个专家使用张量并行)
+        self.experts = nn.ModuleList([
+            ParallelMLP(hidden_size, intermediate_size)
+            for _ in range(num_experts)
+        ])
+            </code></pre>
 
             <div class="performance-comparison">
                 <div class="comparison-title">性能对比</div>
@@ -428,30 +432,27 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                def forward(self, hidden_states):<br/>
-                &nbsp;&nbsp;batch_size, seq_len, hidden_size = hidden_states.shape<br/>
-                &nbsp;&nbsp;hidden_states = hidden_states.view(-1, hidden_size)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 门控计算<br/>
-                &nbsp;&nbsp;router_logits = self.gate(hidden_states)<br/>
-                &nbsp;&nbsp;routing_weights, selected_experts = torch.topk(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;router_logits, self.top_k, dim=-1)<br/>
-                &nbsp;&nbsp;routing_weights = F.softmax(routing_weights, dim=-1)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 专家计算<br/>
-                &nbsp;&nbsp;final_hidden_states = torch.zeros_like(hidden_states)<br/>
-                &nbsp;&nbsp;for i, expert in enumerate(self.experts):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;expert_mask = (selected_experts == i).any(dim=-1)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;if expert_mask.any():<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_input = hidden_states[expert_mask]<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expert_output = expert(expert_input)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 加权聚合<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weights = routing_weights[expert_mask, i]<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final_hidden_states[expert_mask] += weights * expert_output<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;return final_hidden_states.view(batch_size, seq_len, hidden_size)
-            </div>
+            <pre><code class="language-python">
+def forward(self, hidden_states):
+    batch_size, seq_len, hidden_size = hidden_states.shape
+    hidden_states = hidden_states.view(-1, hidden_size)
+    # 门控计算
+    router_logits = self.gate(hidden_states)
+    routing_weights, selected_experts = torch.topk(
+        router_logits, self.top_k, dim=-1)
+    routing_weights = F.softmax(routing_weights, dim=-1)
+    # 专家计算
+    final_hidden_states = torch.zeros_like(hidden_states)
+    for i, expert in enumerate(self.experts):
+        expert_mask = (selected_experts == i).any(dim=-1)
+    if expert_mask.any():
+        expert_input = hidden_states[expert_mask]
+    expert_output = expert(expert_input)
+    # 加权聚合
+    weights = routing_weights[expert_mask, i]
+    final_hidden_states[expert_mask] += weights * expert_output
+    return final_hidden_states.view(batch_size, seq_len, hidden_size)
+            </code></pre>
         </div>
     </div>
 </div>

@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -59,7 +62,7 @@
             color: white;
         }
 
-        .code-block {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
             padding: 12px;
@@ -229,43 +232,42 @@
                 <h2 class="panel-title">核心实现代码</h2>
             </div>
 
-            <div class="code-block">
-                class RowParallelLinear(nn.Module):<br/>
-                &nbsp;&nbsp;def __init__(self, input_size, output_size, bias=True):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.input_size = input_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.output_size = output_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.world_size = get_tensor_model_parallel_world_size()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.rank = get_tensor_model_parallel_rank()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 按行分割输入维度<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;assert input_size % self.world_size == 0<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.input_size_per_partition = input_size // self.world_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 初始化权重和偏置<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.weight = Parameter(torch.empty(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output_size, self.input_size_per_partition))<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;if bias and self.rank == 0:<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = Parameter(torch.empty(output_size))<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;else:<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.bias = None
-            </div>
+            <pre><code class="language-python">
+class RowParallelLinear(nn.Module):
+    def __init__(self, input_size, output_size, bias=True):
+        super().__init__()
+        self.input_size = input_size
+        self.output_size = output_size
+        self.world_size = get_tensor_model_parallel_world_size()
+        self.rank = get_tensor_model_parallel_rank()
 
-            <div class="code-block">
-                &nbsp;&nbsp;def forward(self, input_):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 输入已经是分布式的（来自ColumnParallel）<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 执行部分线性变换<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;output_parallel = F.linear(input_, self.weight)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 通过All-Reduce聚合所有GPU的结果<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;output = reduce_from_tensor_model_parallel_region(output_parallel)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 添加偏置（只在rank 0上）<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;if self.bias is not None:<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output = output + self.bias<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;return output
-            </div>
+        # 按行分割输入维度
+        assert input_size % self.world_size == 0
+        self.input_size_per_partition = input_size // self.world_size
+
+        # 初始化权重和偏置
+        self.weight = Parameter(torch.empty(
+            output_size, self.input_size_per_partition))
+        if bias and self.rank == 0:
+            self.bias = Parameter(torch.empty(output_size))
+        else:
+            self.bias = None
+            </code></pre>
+
+            <pre><code class="language-python">
+def forward(self, input_):
+    # 输入已经是分布式的（来自ColumnParallel）
+    # 执行部分线性变换
+    output_parallel = F.linear(input_, self.weight)
+
+    # 通过All-Reduce聚合所有GPU的结果
+    output = reduce_from_tensor_model_parallel_region(output_parallel)
+
+    # 添加偏置（只在rank 0上）
+    if self.bias is not None:
+        output = output + self.bias
+    return output
+            </code></pre>
 
             <div class="formula-box">
                 <div class="formula-text">

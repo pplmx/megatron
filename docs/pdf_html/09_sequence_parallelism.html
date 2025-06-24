@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -144,7 +147,7 @@
             line-height: 1.4;
         }
 
-        .code-snippet {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             padding: 12px;
@@ -225,21 +228,19 @@
                 </div>
             </div>
 
-            <div class="code-snippet">
-                # 序列并行实现示例<br/>
-                def sequence_parallel_forward(x):<br/>
-                &nbsp;&nbsp;# 输入: [batch, seq_len, hidden]<br/>
-                &nbsp;&nbsp;# 分割序列维度<br/>
-                &nbsp;&nbsp;local_seq_len = seq_len // world_size<br/>
-                &nbsp;&nbsp;x_local = x[:, rank*local_seq_len:(rank+1)*local_seq_len, :]<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 正常的张量并行计算<br/>
-                &nbsp;&nbsp;output_local = tensor_parallel_layer(x_local)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 通过all-gather恢复完整序列<br/>
-                &nbsp;&nbsp;output = all_gather(output_local, dim=1)<br/>
-                &nbsp;&nbsp;return output
-            </div>
+            <pre><code class="language-python">
+# 序列并行实现示例
+def sequence_parallel_forward(x):
+    # 输入: [batch, seq_len, hidden]
+    # 分割序列维度
+    local_seq_len = seq_len // world_size
+    x_local = x[:, rank * local_seq_len:(rank + 1) * local_seq_len, :]
+    # 正常的张量并行计算
+    output_local = tensor_parallel_layer(x_local)
+    # 通过all-gather恢复完整序列
+    output = all_gather(output_local, dim=1)
+    return output
+            </code></pre>
 
             <div class="optimization-box">
                 <div class="optimization-title">关键优化</div>
@@ -308,20 +309,21 @@
                 </div>
             </div>
 
-            <div class="code-snippet">
-                # 通信模式转换<br/>
-                # 原始: all-reduce<br/>
-                def original_communication(tensor):<br/>
-                &nbsp;&nbsp;return all_reduce(tensor)<br/>
-                <br/>
-                # 序列并行: reduce-scatter + all-gather<br/>
-                def sequence_parallel_communication(tensor):<br/>
-                &nbsp;&nbsp;# 第一步: reduce-scatter<br/>
-                &nbsp;&nbsp;local_result = reduce_scatter(tensor)<br/>
-                &nbsp;&nbsp;# 第二步: all-gather (在需要时)<br/>
-                &nbsp;&nbsp;full_result = all_gather(local_result)<br/>
-                &nbsp;&nbsp;return full_result
-            </div>
+            <pre><code class="language-python">
+# 通信模式转换
+# 原始: all-reduce
+def original_communication(tensor):
+    return all_reduce(tensor)
+
+
+# 序列并行: reduce-scatter + all-gather
+def sequence_parallel_communication(tensor):
+    # 第一步: reduce-scatter
+    local_result = reduce_scatter(tensor)
+    # 第二步: all-gather (在需要时)
+    full_result = all_gather(local_result)
+    return full_result
+            </code></pre>
 
             <div class="optimization-box">
                 <div class="optimization-title">适用场景</div>

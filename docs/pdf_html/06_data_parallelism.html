@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -120,7 +123,7 @@
             line-height: 1.4;
         }
 
-        .code-block {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             padding: 15px;
@@ -201,21 +204,21 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                # 数据并行伪代码<br/>
-                for batch in dataloader:<br/>
-                &nbsp;&nbsp;# 分割数据到各GPU<br/>
-                &nbsp;&nbsp;local_batch = batch.to(device)<br/>
-                &nbsp;&nbsp;# 前向传播<br/>
-                &nbsp;&nbsp;output = model(local_batch)<br/>
-                &nbsp;&nbsp;loss = criterion(output, target)<br/>
-                &nbsp;&nbsp;# 反向传播<br/>
-                &nbsp;&nbsp;loss.backward()<br/>
-                &nbsp;&nbsp;# 梯度聚合<br/>
-                &nbsp;&nbsp;all_reduce(model.parameters())<br/>
-                &nbsp;&nbsp;# 参数更新<br/>
-                &nbsp;&nbsp;optimizer.step()
-            </div>
+            <pre><code class="language-python">
+# 数据并行伪代码
+for batch in dataloader:
+    # 分割数据到各GPU
+    local_batch = batch.to(device)
+    # 前向传播
+    output = model(local_batch)
+    loss = criterion(output, target)
+    # 反向传播
+    loss.backward()
+    # 梯度聚合
+    all_reduce(model.parameters())
+    # 参数更新
+    optimizer.step()
+            </code></pre>
         </div>
 
         <div class="content-card">

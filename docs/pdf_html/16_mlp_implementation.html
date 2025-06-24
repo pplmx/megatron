@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         .slide-container {
             width: 1280px;
@@ -96,7 +99,7 @@
             line-height: 1.3;
         }
 
-        .code-block {
+        .code-block, .hljs { /* hljs will be used by highlight.js*/
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
             padding: 10px;
@@ -322,21 +325,21 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                class ParallelMLP(nn.Module):<br/>
-                &nbsp;&nbsp;def __init__(self, hidden_size, intermediate_size):<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;super().__init__()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.hidden_size = hidden_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.intermediate_size = intermediate_size<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 上投影层 (Column Parallel)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.dense_h_to_4h = ColumnParallelLinear(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hidden_size, intermediate_size)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;# 下投影层 (Row Parallel)<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;self.dense_4h_to_h = RowParallelLinear(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intermediate_size, hidden_size)
-            </div>
+            <pre><code class="language-python">
+class ParallelMLP(nn.Module):
+    def __init__(self, hidden_size, intermediate_size):
+        super().__init__()
+        self.hidden_size = hidden_size
+        self.intermediate_size = intermediate_size
+
+        # 上投影层 (Column Parallel)
+        self.dense_h_to_4h = ColumnParallelLinear(
+            hidden_size, intermediate_size)
+
+        # 下投影层 (Row Parallel)
+        self.dense_4h_to_h = RowParallelLinear(
+            intermediate_size, hidden_size)
+            </code></pre>
 
             <div class="memory-savings">
                 <div class="savings-title">内存节省效果</div>
@@ -373,32 +376,28 @@
                 </div>
             </div>
 
-            <div class="code-block">
-                def forward(self, hidden_states):<br/>
-                &nbsp;&nbsp;# 上投影 (Column Parallel)<br/>
-                &nbsp;&nbsp;intermediate_parallel = self.dense_h_to_4h(hidden_states)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 激活函数 (每个GPU独立计算)<br/>
-                &nbsp;&nbsp;intermediate_parallel = gelu(intermediate_parallel)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 下投影 (Row Parallel)<br/>
-                &nbsp;&nbsp;output = self.dense_4h_to_h(intermediate_parallel)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;return output<br/>
-                <br/>
-                # SwiGLU变体实现<br/>
-                def swiglu_forward(self, hidden_states):<br/>
-                &nbsp;&nbsp;# 双路上投影<br/>
-                &nbsp;&nbsp;gate = self.gate_proj(hidden_states)<br/>
-                &nbsp;&nbsp;up = self.up_proj(hidden_states)<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# SwiGLU激活<br/>
-                &nbsp;&nbsp;intermediate = swish(gate) * up<br/>
-                &nbsp;&nbsp;<br/>
-                &nbsp;&nbsp;# 下投影<br/>
-                &nbsp;&nbsp;output = self.down_proj(intermediate)<br/>
-                &nbsp;&nbsp;return output
-            </div>
+            <pre><code class="language-python">
+def forward(self, hidden_states):
+    # 上投影 (Column Parallel)
+    intermediate_parallel = self.dense_h_to_4h(hidden_states)
+    # 激活函数 (每个GPU独立计算)
+    intermediate_parallel = gelu(intermediate_parallel)
+    # 下投影 (Row Parallel)
+    output = self.dense_4h_to_h(intermediate_parallel)
+    return output
+
+
+# SwiGLU变体实现
+def swiglu_forward(self, hidden_states):
+    # 双路上投影
+    gate = self.gate_proj(hidden_states)
+    up = self.up_proj(hidden_states)
+    # SwiGLU激活
+    intermediate = swish(gate) * up
+    # 下投影
+    output = self.down_proj(intermediate)
+    return output
+            </code></pre>
 
             <div class="optimization-techniques">
                 <div class="technique-item">

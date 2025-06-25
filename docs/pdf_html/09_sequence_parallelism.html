@@ -147,22 +147,41 @@
             line-height: 1.4;
         }
 
-        .code-block, .hljs { /* hljs will be used by highlight.js*/
-            background: rgba(0, 0, 0, 0.3);
+        .code-block, .hljs {
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
-            padding: 12px;
-            margin: 12px 0;
+            padding: 15px;
+            margin: 15px 0;
             font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            color: #00ff88;
-            border-left: 4px solid #00ff88;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            overflow-x: auto;
+            color: #f8f8f2; /* 主代码颜色 */
         }
 
-        .optimization-box {
-            background: rgba(231, 76, 60, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
+        .hljs-comment, .hljs-quote {
+            color: #888888 !important; /* 注释颜色 */
+            font-style: italic;
+        }
+
+        .hljs-keyword, .hljs-selector-tag, .hljs-meta {
+            color: #ff79c6; /* 关键字颜色 */
+        }
+
+        .hljs-string, .hljs-attr {
+            color: #f1fa8c; /* 字符串颜色 */
+        }
+
+        .hljs-number, .hljs-literal {
+            color: #bd93f9; /* 数字/字面量颜色 */
+        }
+
+        .hljs-title, .hljs-name {
+            color: #50fa7b; /* 函数/类名颜色 */
+        }
+
+        .hljs-built_in, .hljs-type {
+            color: #8be9fd; /* 内置类型颜色 */
         }
 
         .optimization-title {

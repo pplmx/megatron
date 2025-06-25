@@ -119,10 +119,35 @@
             margin: 8px 0;
             font-family: 'Courier New', monospace;
             font-size: 0.65rem;
-            color: #00ff88;
-            border-left: 3px solid #00ff88;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             overflow-x: auto;
             line-height: 1.2;
+            color: #f8f8f2; /* 主代码颜色 */
+        }
+
+        .hljs-comment, .hljs-quote {
+            color: #888888 !important; /* 注释颜色 */
+            font-style: italic;
+        }
+
+        .hljs-keyword, .hljs-selector-tag, .hljs-meta {
+            color: #ff79c6; /* 关键字颜色 */
+        }
+
+        .hljs-string, .hljs-attr {
+            color: #f1fa8c; /* 字符串颜色 */
+        }
+
+        .hljs-number, .hljs-literal {
+            color: #bd93f9; /* 数字/字面量颜色 */
+        }
+
+        .hljs-title, .hljs-name {
+            color: #50fa7b; /* 函数/类名颜色 */
+        }
+
+        .hljs-built_in, .hljs-type {
+            color: #8be9fd; /* 内置类型颜色 */
         }
 
         .routing-strategy {

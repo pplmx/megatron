@@ -19,14 +19,14 @@ class HTMLToPDFConverter:
     """高性能HTML转PDF转换器，支持并发处理和顺序保证"""
 
     def __init__(
-            self,
-            include_background: bool = True,
-            max_workers: int = 4,
-            viewport_width: int = 1280,
-            viewport_height: int = 720,
-            timeout: int = 30000,  # 30秒超时
-            wait_for: str = "networkidle",  # 等待策略
-            force_viewport_size: bool = False,  # 是否强制使用viewport尺寸
+        self,
+        include_background: bool = True,
+        max_workers: int = 4,
+        viewport_width: int = 1280,
+        viewport_height: int = 720,
+        timeout: int = 30000,  # 30秒超时
+        wait_for: str = "networkidle",  # 等待策略
+        force_viewport_size: bool = False,  # 是否强制使用viewport尺寸
     ):
         self.pdf_options = {
             "print_background": include_background,
@@ -110,14 +110,14 @@ class HTMLToPDFConverter:
         )
 
     async def _convert_single_file_with_semaphore(
-            self, browser: Browser, file_index: int, html_path: Path, semaphore: asyncio.Semaphore, total_files: int
+        self, browser: Browser, file_index: int, html_path: Path, semaphore: asyncio.Semaphore, total_files: int
     ) -> tuple[int, bytes]:
         """带信号量控制的单文件转换"""
         async with semaphore:
             return await self._convert_single_file(browser, file_index, html_path, total_files)
 
     async def _convert_single_file(
-            self, browser: Browser, file_index: int, html_path: Path, total_files: int
+        self, browser: Browser, file_index: int, html_path: Path, total_files: int
     ) -> tuple[int, bytes]:
         """转换单个HTML文件为PDF"""
         log_prefix = f"[{file_index + 1:03d}/{total_files:03d}][{html_path.name}]"
@@ -214,7 +214,7 @@ class HTMLToPDFConverter:
         return await page.pdf(**pdf_options)
 
     def _process_conversion_results(
-            self, results: list[tuple[int, bytes] | Exception], html_files: list[Path]
+        self, results: list[tuple[int, bytes] | Exception], html_files: list[Path]
     ) -> list[tuple[int, bytes]]:
         """处理转换结果，分离成功和失败的转换"""
         successful_conversions = []
@@ -319,15 +319,15 @@ class HTMLToPDFConverter:
 
 
 def convert_html_to_pdf(
-        source: str | Path | list,
-        output_path: str | Path,
-        include_background: bool = True,
-        max_workers: int = 4,
-        viewport_width: int = 1280,
-        viewport_height: int = 720,
-        timeout: int = 30000,
-        wait_for: str = "networkidle",
-        force_viewport_size: bool = False,
+    source: str | Path | list,
+    output_path: str | Path,
+    include_background: bool = True,
+    max_workers: int = 4,
+    viewport_width: int = 1280,
+    viewport_height: int = 720,
+    timeout: int = 30000,
+    wait_for: str = "networkidle",
+    force_viewport_size: bool = False,
 ) -> None:
     """HTML转PDF便捷函数
 

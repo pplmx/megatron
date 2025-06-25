@@ -12,7 +12,7 @@ sync:
 
 # Run
 run:
-	@uv run main.py
+	@uv run main.py docs/pdf_html output.pdf
 
 # Ruff
 ruff:

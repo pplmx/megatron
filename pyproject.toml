@@ -8,3 +8,16 @@ dependencies = [
     "playwright>=1.52.0",
     "pypdf>=5.6.1",
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "playwright.async_api",
+    "pypdf"
+]
+ignore_missing_imports = true
+# If playwright has its own partial stubs but they cause issues,
+# you might need to ignore errors from them specifically, or ensure full stubs are installed.
+# For now, just ignoring missing imports for these modules.
